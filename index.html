@@ -7,38 +7,58 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="cyber-grid"></div>
     <div class="container">
         <div class="card">
             <header>
-                <h1>🔑 Software License Monitor</h1>
-                <p class="subtitle">Your intelligent license management system</p>
+                <div class="glitch" data-text="LICENSE MONITOR">
+                    <span class="cyber-icon">⚡</span> LICENSE MONITOR
+                </div>
+                <p class="subtitle">// SYSTEM ACCESS GRANTED //</p>
             </header>
 
-            <div class="welcome-box">
-                <h2>👋 Hello! I'm <strong>License Monitor</strong>! I can help you with:</h2>
-                <ul class="features-list">
-                    <li>📊 Track software licenses & expiration dates</li>
-                    <li>👥 Manage users and access rights</li>
-                    <li>🔔 Get alerts for expiring licenses</li>
-                    <li>📈 Monitor seat availability</li>
-                    <li>📥 Export reports to Excel</li>
-                </ul>
-                <p class="hint">Click any button below to get started!</p>
+            <div class="terminal-box">
+                <div class="terminal-header">
+                    <span class="terminal-dot red"></span>
+                    <span class="terminal-dot yellow"></span>
+                    <span class="terminal-dot green"></span>
+                    <span class="terminal-title">system.monitor</span>
+                </div>
+                <div class="terminal-content">
+                    <p class="terminal-line"><span class="prompt">root@monitor:~$</span> ./status --verbose</p>
+                    <p class="terminal-line"><span class="success">✓</span> License tracking system... <span class="online">ONLINE</span></p>
+                    <p class="terminal-line"><span class="success">✓</span> User management module... <span class="online">ONLINE</span></p>
+                    <p class="terminal-line"><span class="success">✓</span> Expiration alert system... <span class="online">ONLINE</span></p>
+                    <p class="terminal-line"><span class="success">✓</span> Database export ready... <span class="online">ONLINE</span></p>
+                    <p class="terminal-line"><span class="prompt">root@monitor:~$</span> <span class="cursor">_</span></p>
+                </div>
             </div>
 
-            <!-- Quick Action Buttons -->
-            <div class="quick-actions">
-                <button class="action-btn" onclick="showSection('dashboard')">📊 Dashboard</button>
-                <button class="action-btn" onclick="showSection('licenses')">🔑 Licenses</button>
-                <button class="action-btn" onclick="showSection('users')">👥 Users</button>
-                <button class="action-btn" onclick="showSection('assignments')">📝 Assignments</button>
-                <button class="action-btn" onclick="showSection('alerts')">⚠️ Alerts</button>
-                <button class="action-btn primary" onclick="exportToExcel()">📥 Export</button>
+            <!-- Cyber Navigation -->
+            <div class="cyber-nav">
+                <button class="cyber-btn" onclick="showSection('dashboard')">
+                    <span class="btn-icon">▶</span> DASHBOARD
+                </button>
+                <button class="cyber-btn" onclick="showSection('licenses')">
+                    <span class="btn-icon">▶</span> LICENSES
+                </button>
+                <button class="cyber-btn" onclick="showSection('users')">
+                    <span class="btn-icon">▶</span> USERS
+                </button>
+                <button class="cyber-btn" onclick="showSection('assignments')">
+                    <span class="btn-icon">▶</span> ASSIGNMENTS
+                </button>
+                <button class="cyber-btn" onclick="showSection('alerts')">
+                    <span class="btn-icon">▶</span> ALERTS
+                </button>
+                <button class="cyber-btn export" onclick="exportToExcel()">
+                    <span class="btn-icon">⚡</span> EXPORT DATA
+                </button>
             </div>
 
             <!-- Dashboard Stats -->
             <div class="section" id="dashboard-section">
-                <h3 class="section-title">📊 Dashboard Overview</h3>
+                <h3 class="section-title"><span class="title-bracket">[</span> SYSTEM OVERVIEW <span class="title-bracket">]</span></h3>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value" id="total-licenses">0</div>
@@ -62,8 +82,8 @@
             <!-- Licenses Section -->
             <div class="section hidden" id="licenses-section">
                 <div class="section-header-row">
-                    <h3 class="section-title">🔑 Software Licenses</h3>
-                    <button class="btn-add" onclick="showAddLicenseModal()">+ Add License</button>
+                    <h3 class="section-title"><span class="title-bracket">[</span> LICENSE DATABASE <span class="title-bracket">]</span></h3>
+                    <button class="btn-add" onclick="showAddLicenseModal()"><span class="plus">+</span> NEW LICENSE</button>
                 </div>
                 <div class="table-container">
                 <table id="licenses-table">
@@ -88,8 +108,8 @@
             <!-- Users Section -->
             <div class="section hidden" id="users-section">
                 <div class="section-header-row">
-                    <h3 class="section-title">👥 Users</h3>
-                    <button class="btn-add" onclick="showAddUserModal()">+ Add User</button>
+                    <h3 class="section-title"><span class="title-bracket">[</span> USER REGISTRY <span class="title-bracket">]</span></h3>
+                    <button class="btn-add" onclick="showAddUserModal()"><span class="plus">+</span> NEW USER</button>
                 </div>
 
                 <div class="table-container">
@@ -112,8 +132,8 @@
             <!-- Assignments Section -->
             <div class="section hidden" id="assignments-section">
                 <div class="section-header-row">
-                    <h3 class="section-title">📝 License Assignments</h3>
-                    <button class="btn-add" onclick="showAssignLicenseModal()">+ Assign License</button>
+                    <h3 class="section-title"><span class="title-bracket">[</span> ACCESS ASSIGNMENTS <span class="title-bracket">]</span></h3>
+                    <button class="btn-add" onclick="showAssignLicenseModal()"><span class="plus">+</span> ASSIGN ACCESS</button>
                 </div>
 
             <div class="table-container">
@@ -137,7 +157,7 @@
 
             <!-- Alerts Section -->
             <div class="section hidden" id="alerts-section">
-                <h3 class="section-title">⚠️ Expiration Alerts</h3>
+                <h3 class="section-title"><span class="title-bracket">[</span> SECURITY ALERTS <span class="title-bracket">]</span></h3>
                 <div id="alerts-container" class="alerts-section">
                 </div>
             </div>
