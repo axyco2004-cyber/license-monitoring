@@ -16,11 +16,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('access-date').value = today;
     
+    // Show dashboard by default
+    showSection('dashboard');
+    
     // Form submissions
     document.getElementById('license-form').addEventListener('submit', handleAddLicense);
     document.getElementById('user-form').addEventListener('submit', handleAddUser);
     document.getElementById('assign-form').addEventListener('submit', handleAssignLicense);
 });
+
+// Section Navigation
+function showSection(sectionName) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    
+    // Show selected section
+    const targetSection = document.getElementById(sectionName + '-section');
+    if (targetSection) {
+        targetSection.classList.remove('hidden');
+    }
+    
+    // Update button states
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.style.opacity = '1';
+    });
+    event.target.style.opacity = '0.7';
+}
 
 // Initialize with sample data if empty
 function initializeSampleData() {

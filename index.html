@@ -8,44 +8,63 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>📋 Software License Monitor</h1>
-            <button class="btn-excel" onclick="exportToExcel()">📊 Export to Excel</button>
-        </header>
+        <div class="card">
+            <header>
+                <h1>🔑 Software License Monitor</h1>
+                <p class="subtitle">Your intelligent license management system</p>
+            </header>
 
-        <!-- Dashboard Stats -->
-        <div class="stats-section">
-            <h2>📊 Dashboard Overview</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="total-licenses">0</div>
-                    <div class="stat-label">Total Licenses</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="available-licenses">0</div>
-                    <div class="stat-label">Available Seats</div>
-                </div>
-                <div class="stat-card warning">
-                    <div class="stat-value" id="expiring-soon">0</div>
-                    <div class="stat-label">Expiring Soon</div>
-                </div>
-                <div class="stat-card danger">
-                    <div class="stat-value" id="expired-licenses">0</div>
-                    <div class="stat-label">Expired</div>
+            <div class="welcome-box">
+                <h2>👋 Hello! I'm <strong>License Monitor</strong>! I can help you with:</h2>
+                <ul class="features-list">
+                    <li>📊 Track software licenses & expiration dates</li>
+                    <li>👥 Manage users and access rights</li>
+                    <li>🔔 Get alerts for expiring licenses</li>
+                    <li>📈 Monitor seat availability</li>
+                    <li>📥 Export reports to Excel</li>
+                </ul>
+                <p class="hint">Click any button below to get started!</p>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="quick-actions">
+                <button class="action-btn" onclick="showSection('dashboard')">📊 Dashboard</button>
+                <button class="action-btn" onclick="showSection('licenses')">🔑 Licenses</button>
+                <button class="action-btn" onclick="showSection('users')">👥 Users</button>
+                <button class="action-btn" onclick="showSection('assignments')">📝 Assignments</button>
+                <button class="action-btn" onclick="showSection('alerts')">⚠️ Alerts</button>
+                <button class="action-btn primary" onclick="exportToExcel()">📥 Export</button>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="section" id="dashboard-section">
+                <h3 class="section-title">📊 Dashboard Overview</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-licenses">0</div>
+                        <div class="stat-label">Total Licenses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="available-licenses">0</div>
+                        <div class="stat-label">Available Seats</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-value" id="expiring-soon">0</div>
+                        <div class="stat-label">Expiring Soon</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-value" id="expired-licenses">0</div>
+                        <div class="stat-label">Expired</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Main Content in Columns -->
-        <div class="columns-layout">
-            
-            <!-- Column 1: Licenses -->
-            <div class="column">
-                <div class="column-header">
-                    <h2>🔑 Software Licenses</h2>
-                    <button class="btn-add" onclick="showAddLicenseModal()">+ Add</button>
+            <!-- Licenses Section -->
+            <div class="section hidden" id="licenses-section">
+                <div class="section-header-row">
+                    <h3 class="section-title">🔑 Software Licenses</h3>
+                    <button class="btn-add" onclick="showAddLicenseModal()">+ Add License</button>
                 </div>
-                <div class="column-content">
                 <div class="table-container">
                 <table id="licenses-table">
                     <thead>
@@ -65,14 +84,13 @@
                 </table>
                 </div>
             </div>
-            
-            <!-- Column 2: Users -->
-            <div class="column">
-                <div class="column-header">
-                    <h2>👥 Users</h2>
-                    <button class="btn-add" onclick="showAddUserModal()">+ Add</button>
+
+            <!-- Users Section -->
+            <div class="section hidden" id="users-section">
+                <div class="section-header-row">
+                    <h3 class="section-title">👥 Users</h3>
+                    <button class="btn-add" onclick="showAddUserModal()">+ Add User</button>
                 </div>
-                <div class="column-content">
 
                 <div class="table-container">
                     <table id="users-table">
@@ -89,16 +107,14 @@
                     </tbody>
                     </table>
                 </div>
-                </div>
             </div>
-        </div>
 
-        <!-- Full Width: Assignments -->
-        <div class="full-width-section">
-            <div class="column-header">
-                <h2>📝 License Assignments</h2>
-                <button class="btn-add" onclick="showAssignLicenseModal()">+ Assign</button>
-            </div>
+            <!-- Assignments Section -->
+            <div class="section hidden" id="assignments-section">
+                <div class="section-header-row">
+                    <h3 class="section-title">📝 License Assignments</h3>
+                    <button class="btn-add" onclick="showAssignLicenseModal()">+ Assign License</button>
+                </div>
 
             <div class="table-container">
                 <table id="assignments-table">
@@ -117,14 +133,13 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-
-        <!-- Full Width: Alerts -->
-        <div class="full-width-section">
-            <div class="column-header">
-                <h2>⚠️ Expiration Alerts</h2>
             </div>
-            <div id="alerts-container" class="alerts-section">
+
+            <!-- Alerts Section -->
+            <div class="section hidden" id="alerts-section">
+                <h3 class="section-title">⚠️ Expiration Alerts</h3>
+                <div id="alerts-container" class="alerts-section">
+                </div>
             </div>
         </div>
     </div>
