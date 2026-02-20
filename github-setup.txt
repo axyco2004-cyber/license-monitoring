@@ -1,0 +1,10 @@
+# GitHub Setup Commands
+# After creating the repository on GitHub, run these commands:
+
+# Replace YOUR_USERNAME with your actual GitHub username
+git remote add origin https://github.com/YOUR_USERNAME/license-monitor.git
+git push -u origin main
+
+# Example if your username is "axyco2004":
+# git remote add origin https://github.com/axyco2004/license-monitor.git
+# git push -u origin main
