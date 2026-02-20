@@ -38,16 +38,16 @@ function showSection(sectionName) {
         targetSection.classList.remove('hidden');
     }
     
-    // Update navigation button states
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    // Update sidebar navigation
+    document.querySelectorAll('.nav-item').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // Find and activate the matching button
-    const buttons = document.querySelectorAll('.nav-btn');
+    // Find and activate matching button
+    const buttons = document.querySelectorAll('.nav-item');
     buttons.forEach(btn => {
-        if (btn.textContent.toLowerCase().includes(sectionName) || 
-            (sectionName === 'dashboard' && btn.textContent === 'Dashboard')) {
+        const text = btn.textContent.toLowerCase();
+        if (text.includes(sectionName)) {
             btn.classList.add('active');
         }
     });
@@ -511,11 +511,26 @@ function updateStats() {
         return days >= 0 && days <= 30;
     }).length;
     const expired = licenses.filter(l => getDaysRemaining(l.expirationDate) < 0).length;
+    const totalSeats = licenses.reduce((sum, l) => sum + l.totalSeats, 0);
+    const usedSeats = licenses.reduce((sum, l) => sum + l.usedSeats, 0);
     
-    document.getElementById('total-licenses').textContent = totalLicenses;
-    document.getElementById('available-licenses').textContent = availableSeats;
-    document.getElementById('expiring-soon').textContent = expiringSoon;
-    document.getElementById('expired-licenses').textContent = expired;
+    // Update dashboard categories
+    document.getElementById('total-licenses').textContent = `${totalLicenses} items`;
+    document.getElementById('total-users').textContent = `${users.length} items`;
+    document.getElementById('total-assignments').textContent = `${assignments.length} items`;
+    document.getElementById('expiring-count').textContent = `${expiringSoon} items`;
+    
+    // Update stats cards
+    document.getElementById('stat-active').textContent = `${totalLicenses} licenses`;
+    document.getElementById('stat-available').textContent = `${availableSeats} seats`;
+    document.getElementById('stat-expiring').textContent = `${expiringSoon} licenses`;
+    document.getElementById('stat-expired').textContent = `${expired} licenses`;
+    
+    // Update usage stats in right sidebar
+    const usagePercent = totalSeats > 0 ? Math.round((usedSeats / totalSeats) * 100) : 0;
+    document.getElementById('usage-percent').textContent = `${usagePercent}% used`;
+    document.getElementById('usage-bar').style.width = `${usagePercent}%`;
+    document.getElementById('usage-text').textContent = `${usedSeats} of ${totalSeats} seats are used`;
 }
 
 // Excel Export Function

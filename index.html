@@ -3,136 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>License Monitor - Friendly Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=2.0">
+    <title>License Monitor - Dashboard</title>
+    <link rel="stylesheet" href="styles.css?v=3.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <header>
-                <h1>🎫 License Monitor</h1>
-            </header>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-avatar">👤</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" onclick="showSection('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </button>
+                <button class="nav-item" onclick="showSection('licenses')">
+                    <span class="nav-icon">🎫</span>
+                    <span class="nav-text">All Licenses</span>
+                </button>
+                <button class="nav-item" onclick="showSection('users')">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Users</span>
+                </button>
+                <button class="nav-item" onclick="showSection('assignments')">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Assignments</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="nav-item" onclick="exportToExcel()">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">Export Data</span>
+                </button>
+            </div>
+        </aside>
 
-            <!-- Navigation -->
-            <div class="nav-buttons">
-                <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
-                <button class="nav-btn" onclick="showSection('licenses')">Licenses</button>
-                <button class="nav-btn" onclick="showSection('users')">Users</button>
-                <button class="nav-btn" onclick="showSection('assignments')">Assignments</button>
-                <button class="nav-btn export" onclick="exportToExcel()">Export to Excel</button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <input type="text" class="search-box" placeholder="🔍 Search licenses, users...">
+                <button class="pro-badge">Pro</button>
             </div>
 
             <!-- Dashboard Section -->
             <div class="section" id="dashboard-section">
-                <h2>Dashboard</h2>
+                <h2 class="section-title">Categories</h2>
                 
-                <div class="stats-row">
-                    <div class="stat-box">
-                        <div class="stat-number" id="total-licenses">0</div>
-                        <div class="stat-label">Total Licenses</div>
+                <div class="category-grid">
+                    <div class="category-card purple">
+                        <div class="category-icon">🎫</div>
+                        <div class="category-info">
+                            <div class="category-name">Licenses</div>
+                            <div class="category-count" id="total-licenses">0 items</div>
+                        </div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="available-licenses">0</div>
-                        <div class="stat-label">Available Seats</div>
+                    <div class="category-card cyan">
+                        <div class="category-icon">👥</div>
+                        <div class="category-info">
+                            <div class="category-name">Users</div>
+                            <div class="category-count" id="total-users">0 items</div>
+                        </div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="expiring-soon">0</div>
-                        <div class="stat-label">Expiring Soon</div>
+                    <div class="category-card pink">
+                        <div class="category-icon">📋</div>
+                        <div class="category-info">
+                            <div class="category-name">Assignments</div>
+                            <div class="category-count" id="total-assignments">0 items</div>
+                        </div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-number" id="expired-licenses">0</div>
-                        <div class="stat-label">Expired</div>
+                    <div class="category-card blue">
+                        <div class="category-icon">⚠️</div>
+                        <div class="category-info">
+                            <div class="category-name">Expiring</div>
+                            <div class="category-count" id="expiring-count">0 items</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="content-box">
-                    <div id="alerts-container"></div>
+                <h2 class="section-title">Quick Stats</h2>
+                
+                <div class="file-grid">
+                    <div class="file-card" onclick="showSection('licenses')">
+                        <div class="file-icon purple">📦</div>
+                        <div class="file-info">
+                            <div class="file-name">Active Licenses</div>
+                            <div class="file-count" id="stat-active">0 licenses</div>
+                        </div>
+                    </div>
+                    <div class="file-card">
+                        <div class="file-icon cyan">✅</div>
+                        <div class="file-info">
+                            <div class="file-name">Available Seats</div>
+                            <div class="file-count" id="stat-available">0 seats</div>
+                        </div>
+                    </div>
+                    <div class="file-card">
+                        <div class="file-icon pink">⏰</div>
+                        <div class="file-info">
+                            <div class="file-name">Expiring Soon</div>
+                            <div class="file-count" id="stat-expiring">0 licenses</div>
+                        </div>
+                    </div>
+                    <div class="file-card">
+                        <div class="file-icon blue">❌</div>
+                        <div class="file-info">
+                            <div class="file-name">Expired</div>
+                            <div class="file-count" id="stat-expired">0 licenses</div>
+                        </div>
+                    </div>
                 </div>
+
+                <h2 class="section-title">Recent Alerts</h2>
+                <div class="recent-files" id="alerts-container"></div>
             </div>
 
             <!-- Licenses Section -->
             <div class="section hidden" id="licenses-section">
                 <div class="section-header">
-                    <h2>Licenses</h2>
-                    <button class="btn-add" onclick="showAddLicenseModal()">Add License</button>
+                    <h2 class="section-title">All Licenses</h2>
+                    <button class="btn-add" onclick="showAddLicenseModal()">+ Add License</button>
                 </div>
 
-                <div class="content-box">
-                    <div class="table-container">
-                        <table id="licenses-table">
-                            <thead>
-                                <tr>
-                                    <th>Software Name</th>
-                                    <th>License Key</th>
-                                    <th>Total Seats</th>
-                                    <th>Used</th>
-                                    <th>Available</th>
-                                    <th>Expiration</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="licenses-tbody"></tbody>
-                        </table>
-                    </div>
+                <div class="recent-files">
+                    <table id="licenses-table">
+                        <thead>
+                            <tr>
+                                <th>Software Name</th>
+                                <th>License Key</th>
+                                <th>Total Seats</th>
+                                <th>Used</th>
+                                <th>Available</th>
+                                <th>Expiration</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="licenses-tbody"></tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- Users Section -->
             <div class="section hidden" id="users-section">
                 <div class="section-header">
-                    <h2>Users</h2>
-                    <button class="btn-add" onclick="showAddUserModal()">Add User</button>
+                    <h2 class="section-title">All Users</h2>
+                    <button class="btn-add" onclick="showAddUserModal()">+ Add User</button>
                 </div>
 
-                <div class="content-box">
-                    <div class="table-container">
-                        <table id="users-table">
-                            <thead>
-                                <tr>
-                                    <th>User Name</th>
-                                    <th>Email</th>
-                                    <th>Department</th>
-                                    <th>Active Licenses</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-tbody"></tbody>
-                        </table>
-                    </div>
+                <div class="recent-files">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Active Licenses</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody"></tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- Assignments Section -->
             <div class="section hidden" id="assignments-section">
                 <div class="section-header">
-                    <h2>License Assignments</h2>
-                    <button class="btn-add" onclick="showAssignLicenseModal()">Assign License</button>
+                    <h2 class="section-title">License Assignments</h2>
+                    <button class="btn-add" onclick="showAssignLicenseModal()">+ Assign License</button>
                 </div>
 
-                <div class="content-box">
-                    <div class="table-container">
-                        <table id="assignments-table">
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>Software</th>
-                                    <th>Access Date</th>
-                                    <th>Expires</th>
-                                    <th>Days Left</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="assignments-tbody"></tbody>
-                        </table>
-                    </div>
+                <div class="recent-files">
+                    <table id="assignments-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Software</th>
+                                <th>Access Date</th>
+                                <th>Expires</th>
+                                <th>Days Left</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assignments-tbody"></tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <div class="upload-section">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">Add new items</div>
+            </div>
+
+            <div class="storage-section">
+                <div class="storage-header">
+                    <span class="storage-title">License Usage</span>
+                    <span class="storage-percent" id="usage-percent">0%</span>
+                </div>
+                <div class="storage-bar">
+                    <div class="storage-progress" id="usage-bar" style="width: 0%"></div>
+                </div>
+                <div class="storage-text" id="usage-text">0 of 0 licenses used</div>
+            </div>
+
+            <div class="shared-folders">
+                <div class="shared-header">Recent Activity</div>
+                <div id="recent-activity"></div>
+            </div>
+        </aside>
     </div>
 
     <!-- Modals -->
