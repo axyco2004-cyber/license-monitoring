@@ -38,11 +38,19 @@ function showSection(sectionName) {
         targetSection.classList.remove('hidden');
     }
     
-    // Update button states
-    document.querySelectorAll('.action-btn').forEach(btn => {
-        btn.style.opacity = '1';
+    // Update navigation button states
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
     });
-    event.target.style.opacity = '0.7';
+    
+    // Find and activate the matching button
+    const buttons = document.querySelectorAll('.nav-btn');
+    buttons.forEach(btn => {
+        if (btn.textContent.toLowerCase().includes(sectionName) || 
+            (sectionName === 'dashboard' && btn.textContent === 'Dashboard')) {
+            btn.classList.add('active');
+        }
+    });
 }
 
 // Initialize with sample data if empty
