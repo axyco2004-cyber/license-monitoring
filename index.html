@@ -19,7 +19,7 @@
             }
         }
     </script>
-    <link rel="stylesheet" href="styles.css?v=3.1">
+    <link rel="stylesheet" href="styles.css?v=4.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -52,9 +52,8 @@
             </nav>
             
             <div class="sidebar-footer">
-                <button class="nav-item" onclick="exportToExcel()">
-                    <span class="nav-icon">📥</span>
-                    <span class="nav-text">Export Data</span>
+                <button class="btn-export" onclick="exportToExcel()">
+                    <span>💾 Export to Excel</span>
                 </button>
             </div>
         </aside>
@@ -62,13 +61,13 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="top-bar">
-                <input type="text" class="search-box" placeholder="🔍 Search licenses, users...">
-                <button class="pro-badge">Pro</button>
+                <input type="text" class="search-box" placeholder="🔍 Search anything... Licenses, Users, Dates...">
+                <button class="pro-badge">✨ Pro Mode Active ✨</button>
             </div>
 
             <!-- Dashboard Section -->
             <div class="section" id="dashboard-section">
-                <h2 class="section-title">Categories</h2>
+                <h2 class="section-title">📊 Your License Overview</h2>
                 
                 <div class="category-grid">
                     <div class="category-card purple">
@@ -101,7 +100,7 @@
                     </div>
                 </div>
 
-                <h2 class="section-title">Quick Stats</h2>
+                <h2 class="section-title">🎯 Quick Stats</h2>
                 
                 <div class="file-grid">
                     <div class="file-card" onclick="showSection('licenses')">
@@ -134,15 +133,15 @@
                     </div>
                 </div>
 
-                <h2 class="section-title">Recent Alerts</h2>
+                <h2 class="section-title">🔔 Recent Alerts</h2>
                 <div class="recent-files" id="alerts-container"></div>
             </div>
 
             <!-- Licenses Section -->
             <div class="section hidden" id="licenses-section">
                 <div class="section-header">
-                    <h2 class="section-title">All Licenses</h2>
-                    <button class="btn-add" onclick="showAddLicenseModal()">+ Add License</button>
+                    <h2 class="section-title">📜 All Licenses</h2>
+                    <button class="btn-add" onclick="showAddLicenseModal()">➕ Add New License</button>
                 </div>
 
                 <div class="recent-files">
@@ -167,8 +166,8 @@
             <!-- Users Section -->
             <div class="section hidden" id="users-section">
                 <div class="section-header">
-                    <h2 class="section-title">All Users</h2>
-                    <button class="btn-add" onclick="showAddUserModal()">+ Add User</button>
+                    <h2 class="section-title">👥 All Users</h2>
+                    <button class="btn-add" onclick="showAddUserModal()">➕ Add New User</button>
                 </div>
 
                 <div class="recent-files">
@@ -190,8 +189,8 @@
             <!-- Assignments Section -->
             <div class="section hidden" id="assignments-section">
                 <div class="section-header">
-                    <h2 class="section-title">License Assignments</h2>
-                    <button class="btn-add" onclick="showAssignLicenseModal()">+ Assign License</button>
+                    <h2 class="section-title">🔗 License Assignments</h2>
+                    <button class="btn-add" onclick="showAssignLicenseModal()">➕ Assign License</button>
                 </div>
 
                 <div class="recent-files">
@@ -222,7 +221,7 @@
 
             <div class="storage-section">
                 <div class="storage-header">
-                    <span class="storage-title">License Usage</span>
+                    <span class="storage-title">📈 License Usage</span>
                     <span class="storage-percent" id="usage-percent">0%</span>
                 </div>
                 <div class="storage-bar">
@@ -232,7 +231,7 @@
             </div>
 
             <div class="shared-folders">
-                <div class="shared-header">Recent Activity</div>
+                <div class="shared-header">🕒 Recent Activity</div>
                 <div id="recent-activity"></div>
             </div>
         </aside>
@@ -242,7 +241,7 @@
     <div id="license-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('license-modal')">&times;</span>
-            <h2>Add New License</h2>
+            <h2>🎉 Add New License</h2>
             <form id="license-form">
                 <div class="form-group">
                     <label>Software Name</label>
@@ -271,7 +270,7 @@
     <div id="user-modal" class="modal">
         <div class="modal-content">
             <span class="close"  onclick="closeModal('user-modal')">&times;</span>
-            <h2>Add New User</h2>
+            <h2>👤 Add New User</h2>
             <form id="user-form">
                 <div class="form-group">
                     <label>User Name</label>
@@ -296,7 +295,7 @@
     <div id="assign-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('assign-modal')">&times;</span>
-            <h2>Assign License to User</h2>
+            <h2>🎯 Assign License to User</h2>
             <form id="assign-form">
                 <div class="form-group">
                     <label>Select User</label>
