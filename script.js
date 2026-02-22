@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Form submissions
     document.getElementById('license-form').addEventListener('submit', handleAddLicense);
-    document.getElementById('user-form').addEventListener('submit', handleAddUser);
     document.getElementById('assign-form').addEventListener('submit', handleAssignLicense);
 });
 
@@ -35,16 +34,6 @@ function showAddLicenseModal() {
 function closeModal() {
     document.getElementById('add-license-modal').classList.add('hidden');
     document.getElementById('license-form').reset();
-}
-
-// Add User Modal
-function showAddUserModal() {
-    document.getElementById('add-user-modal').classList.remove('hidden');
-}
-
-function closeUserModal() {
-    document.getElementById('add-user-modal').classList.add('hidden');
-    document.getElementById('user-form').reset();
 }
 
 // Assign License Modal
@@ -71,12 +60,10 @@ function closeFreeLicensesModal() {
 // Close modal when clicking outside
 window.onclick = function(event) {
     const licenseModal = document.getElementById('add-license-modal');
-    const userModal = document.getElementById('add-user-modal');
     const assignModal = document.getElementById('assign-license-modal');
     const freeModal = document.getElementById('free-licenses-modal');
     
     if (event.target === licenseModal) closeModal();
-    if (event.target === userModal) closeUserModal();
     if (event.target === assignModal) closeAssignModal();
     if (event.target === freeModal) closeFreeLicensesModal();
 }
@@ -101,23 +88,6 @@ function handleAddLicense(e) {
     updateStats();
     checkExpirationAlerts();
     closeModal();
-}
-
-// Handle Add User
-function handleAddUser(e) {
-    e.preventDefault();
-    
-    const user = {
-        id: generateId(),
-        name: document.getElementById('new-user-name').value,
-        email: document.getElementById('user-email').value,
-        department: document.getElementById('user-department').value || 'N/A'
-    };
-    
-    users.push(user);
-    saveUsers();
-    closeUserModal();
-    alert('User added successfully!');
 }
 
 // Handle Assign License
