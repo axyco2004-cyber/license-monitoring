@@ -7,108 +7,39 @@
     <link rel="stylesheet" href="styles.css?v=5.0">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="user-avatar">👤</div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <button class="nav-item active" onclick="showSection('dashboard')">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">Dashboard</span>
-                </button>
-                <button class="nav-item" onclick="showSection('licenses')">
-                    <span class="nav-icon">🎫</span>
-                    <span class="nav-text">All Licenses</span>
-                </button>
-                <button class="nav-item" onclick="showSection('users')">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-text">Users</span>
-                </button>
-                <button class="nav-item" onclick="showSection('assignments')">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-text">Assignments</span>
-                </button>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <button class="btn-export" onclick="exportToExcel()">
-                    <span>💾 Export to Excel</span>
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Dashboard Section -->
-            <div class="section" id="dashboard-section" style="background:#fff; border-radius:16px; box-shadow:0 2px 16px rgba(0,0,0,0.06); padding:32px;">
-                <div class="badge">License Monitor • Office Dashboard</div>
-                <div class="header">
-                    <div>
-                        <div class="title">License Management System</div>
-                        <div class="subtitle">User-friendly office dashboard for managing licenses, users, and assignments.</div>
-                        <p class="tagline">Effortlessly track your software assets with a clean, modern interface inspired by productivity suites.</p>
-                        <div class="meta">
-                            <span><strong id="total-licenses">0</strong> licenses</span>
-                            <span><strong id="total-users">0</strong> users</span>
-                            <span><strong id="total-assignments">0</strong> assignments</span>
-                            <span><strong id="expiring-count">0</strong> expiring soon</span>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="pill" style="background:#2563eb;color:#fff;border-radius:6px;padding:6px 16px;font-weight:600;">Real-time tracking</span>
-                    </div>
-                </div>
-                <div class="office-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:32px;">
-                    <div class="office-card" style="background:#f4f6fa;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(37,99,235,0.08);">
-                        <h3 style="color:#2563eb;font-size:18px;margin-bottom:12px;">📦 Active Licenses</h3>
-                        <ul style="color:#374151;font-size:13px;margin-bottom:16px;">
-                            <li>Currently in use</li>
-                            <li>Full seat utilization</li>
-                            <li>Click to view all</li>
-                        </ul>
-                        <div class="card-value" id="stat-active" style="font-size:24px;font-weight:700;color:#2563eb;">0 licenses</div>
-                    </div>
-                    <div class="office-card" style="background:#f4f6fa;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(37,99,235,0.08);">
-                        <h3 style="color:#2563eb;font-size:18px;margin-bottom:12px;">✅ Available Seats</h3>
-                        <ul style="color:#374151;font-size:13px;margin-bottom:16px;">
-                            <li>Unassigned licenses</li>
-                            <li>Ready for allocation</li>
-                            <li>Capacity remaining</li>
-                        </ul>
-                        <div class="card-value" id="stat-available" style="font-size:24px;font-weight:700;color:#2563eb;">0 seats</div>
-                    </div>
-                    <div class="office-card" style="background:#f4f6fa;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(37,99,235,0.08);">
-                        <h3 style="color:#2563eb;font-size:18px;margin-bottom:12px;">⏰ Expiring Soon</h3>
-                        <ul style="color:#374151;font-size:13px;margin-bottom:16px;">
-                            <li>Next 30 days</li>
-                            <li>Renewal required</li>
-                            <li>Action needed</li>
-                        </ul>
-                        <div class="card-value" id="stat-expiring" style="font-size:24px;font-weight:700;color:#2563eb;">0 licenses</div>
-                    </div>
-                    <div class="office-card" style="background:#f4f6fa;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(37,99,235,0.08);">
-                        <h3 style="color:#2563eb;font-size:18px;margin-bottom:12px;">❌ Expired</h3>
-                        <ul style="color:#374151;font-size:13px;margin-bottom:16px;">
-                            <li>Past expiration date</li>
-                            <li>No longer valid</li>
-                            <li>Immediate attention</li>
-                        </ul>
-                        <div class="card-value" id="stat-expired" style="font-size:24px;font-weight:700;color:#2563eb;">0 licenses</div>
-                    </div>
-                </div>
-                <h2 class="section-title" style="color:#2563eb;margin-top:24px;">🔔 Recent Alerts & Notifications</h2>
-                <p class="subtitle" style="color:#374151;">
-                    Stay informed about license expirations and important updates.
-                </p>
-                <div class="recent-files" id="alerts-container"></div>
-                <p class="footer-note" style="margin-top:32px;color:#6b7280;font-size:13px;">
-                    💡 All data stored locally in your browser. Export to Excel for backups and reports.<br>
-                    © 2026 License Monitor – Keep your software licenses organized.
-                </p>
-            </div>
+    <div class="gw-header">
+      <img src="https://storage.googleapis.com/gweb-workspace-assets/uploads/7uffzv9dk4sn-2QNOheeN6FD0S5Sfmqzhjn-b7f4e1aad73efc4d18b33d89e934fac5-logo-google.svg" alt="Google Workspace" class="gw-logo">
+      <nav class="gw-nav">
+        <a href="#">Apps</a>
+        <a href="#">Security</a>
+        <a href="#">Support</a>
+      </nav>
+    </div>
+    <div class="gw-container">
+      <aside class="gw-sidebar">
+        <button><img src="https://lh3.googleusercontent.com/nKxpvWxsFjqJgimml3R4tpqlaKOp2uxX8seNOd_rPO2_00WmZET1tMeMAjf3UfXvEBK8xGEeVKrF5mu17ZRpsRso09h8Vti4lc7Y=e365-pa-nu-rw-w1024" alt="Gmail" style="height:32px;"></button>
+        <button><img src="https://lh3.googleusercontent.com/uLcft0NGwQMvNER-XllrORKFHmLkktZT4asP3FYLs3r3adDnZptTbV9KijVrap1ISHHopat62ubWC4UsBGiC-H7ihIehKLXxG-AR=e365-pa-nu-rw-w1024" alt="Drive" style="height:32px;"></button>
+        <button><img src="https://lh3.googleusercontent.com/jpj41CUncuPcIKcfc8EfnX2dAZD5hki83WH54odaZwPKz514AAsTPc-13l94bJncvoWNu-Twzd9IRo7Z67ojk2mRzfYx5sDuYKCUbQ=e365-pa-nu-rw-w1024" alt="Docs" style="height:32px;"></button>
+        <!-- More app icons -->
+      </aside>
+      <main class="gw-main">
+        <div class="gw-cards">
+          <div class="gw-card">
+            <h3>Gmail</h3>
+            <p>Check your inbox</p>
+          </div>
+          <div class="gw-card">
+            <h3>Drive</h3>
+            <p>Access your files</p>
+          </div>
+          <div class="gw-card">
+            <h3>Docs</h3>
+            <p>Edit documents</p>
+          </div>
+          <!-- More cards -->
+        </div>
+      </main>
+    </div>
 
             <!-- Licenses Section -->
             <div class="section hidden" id="licenses-section">

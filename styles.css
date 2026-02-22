@@ -1,8 +1,43 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
 }
+
+body {
+    background: #f4f6fa;
+    font-family: 'Google Sans', Arial, sans-serif;
+}
+.gw-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 32px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.gw-logo { height: 32px; margin-right: 24px; }
+.gw-nav a { color: #2563eb; margin: 0 12px; text-decoration: none; font-weight: 500; }
+.gw-container { display: flex; }
+.gw-sidebar {
+    width: 72px;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+}
+.gw-sidebar button { background: none; border: none; margin: 12px 0; }
+.gw-main { flex: 1; padding: 32px; }
+.gw-cards { display: flex; gap: 24px; }
+.gw-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 8px rgba(37,99,235,0.08);
+    padding: 24px;
+    min-width: 200px;
+}
+.gw-card h3 { color: #2563eb; margin-bottom: 8px; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
