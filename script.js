@@ -1,5 +1,6 @@
 // License Monitoring System
 let licenses = JSON.parse(localStorage.getItem('licenses')) || [];
+let users = JSON.parse(localStorage.getItem('users')) || [];
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
@@ -13,8 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('assignment-date').value = today;
     
-    // Form submission
+    // Form submissions
     document.getElementById('license-form').addEventListener('submit', handleAddLicense);
+    document.getElementById('user-form').addEventListener('submit', handleAddUser);
+    document.getElementById('assign-form').addEventListener('submit', handleAssignLicense);
 });
 
 // Update current date display
@@ -24,7 +27,7 @@ function updateCurrentDate() {
     document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
 }
 
-// Show/Hide Modal
+// Show/Hide Modals
 function showAddLicenseModal() {
     document.getElementById('add-license-modal').classList.remove('hidden');
 }
@@ -34,12 +37,48 @@ function closeModal() {
     document.getElementById('license-form').reset();
 }
 
+// Add User Modal
+function showAddUserModal() {
+    document.getElementById('add-user-modal').classList.remove('hidden');
+}
+
+function closeUserModal() {
+    document.getElementById('add-user-modal').classList.add('hidden');
+    document.getElementById('user-form').reset();
+}
+
+// Assign License Modal
+function showAssignLicenseModal() {
+    populateAssignDropdowns();
+    document.getElementById('assign-license-modal').classList.remove('hidden');
+}
+
+function closeAssignModal() {
+    document.getElementById('assign-license-modal').classList.add('hidden');
+    document.getElementById('assign-form').reset();
+}
+
+// Free Licenses Modal
+function showFreeLicensesModal() {
+    renderFreeLicensesList();
+    document.getElementById('free-licenses-modal').classList.remove('hidden');
+}
+
+function closeFreeLicensesModal() {
+    document.getElementById('free-licenses-modal').classList.add('hidden');
+}
+
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('add-license-modal');
-    if (event.target === modal) {
-        closeModal();
-    }
+    const licenseModal = document.getElementById('add-license-modal');
+    const userModal = document.getElementById('add-user-modal');
+    const assignModal = document.getElementById('assign-license-modal');
+    const freeModal = document.getElementById('free-licenses-modal');
+    
+    if (event.target === licenseModal) closeModal();
+    if (event.target === userModal) closeUserModal();
+    if (event.target === assignModal) closeAssignModal();
+    if (event.target === freeModal) closeFreeLicensesModal();
 }
 
 // Handle Add License
@@ -64,6 +103,50 @@ function handleAddLicense(e) {
     closeModal();
 }
 
+// Handle Add User
+function handleAddUser(e) {
+    e.preventDefault();
+    
+    const user = {
+        id: generateId(),
+        name: document.getElementById('new-user-name').value,
+        email: document.getElementById('user-email').value,
+        department: document.getElementById('user-department').value || 'N/A'
+    };
+    
+    users.push(user);
+    saveUsers();
+    closeUserModal();
+    alert('User added successfully!');
+}
+
+// Handle Assign License
+function handleAssignLicense(e) {
+    e.preventDefault();
+    
+    const userId = document.getElementById('assign-user-select').value;
+    const licenseId = document.getElementById('assign-license-select').value;
+    
+    const user = users.find(u => u.id === userId);
+    const license = licenses.find(l => l.id === licenseId);
+    
+    if (license && license.usedLicenses < license.totalLicenses) {
+        license.usedLicenses++;
+        saveLicenses();
+        renderLicenses();
+        updateStats();
+        closeAssignModal();
+        alert(`License assigned to ${user.name} successfully!`);
+    } else {
+        alert('No free licenses available for this license type!');
+    }
+}
+    renderLicenses();
+    updateStats();
+    checkExpirationAlerts();
+    closeModal();
+}
+
 // Generate unique ID
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -72,6 +155,10 @@ function generateId() {
 // Save to localStorage
 function saveLicenses() {
     localStorage.setItem('licenses', JSON.stringify(licenses));
+}
+
+function saveUsers() {
+    localStorage.setItem('users', JSON.stringify(users));
 }
 
 // Render licenses table
@@ -146,6 +233,66 @@ function updateStats() {
     document.getElementById('free-licenses').textContent = freeLicensesCount;
     document.getElementById('total-users').textContent = totalUsers;
     document.getElementById('expiring-soon').textContent = expiringSoon;
+}
+
+// Populate assign license dropdowns
+function populateAssignDropdowns() {
+    const userSelect = document.getElementById('assign-user-select');
+    const licenseSelect = document.getElementById('assign-license-select');
+    
+    // Populate users
+    userSelect.innerHTML = '<option value="">-- Select User --</option>' +
+        users.map(user => `<option value="${user.id}">${user.name} (${user.email})</option>`).join('');
+    
+    // Populate available licenses
+    licenseSelect.innerHTML = '<option value="">-- Select License --</option>' +
+        licenses.filter(l => l.usedLicenses < l.totalLicenses)
+            .map(license => `<option value="${license.id}">${license.licenseKey} (${license.totalLicenses - license.usedLicenses} free)</option>`).join('');
+}
+
+// Render free licenses list
+function renderFreeLicensesList() {
+    const container = document.getElementById('free-licenses-list');
+    
+    if (licenses.length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-400 py-8">No licenses available.</p>';
+        return;
+    }
+    
+    const licenseGroups = {};
+    licenses.forEach(license => {
+        const key = license.licenseKey;
+        if (!licenseGroups[key]) {
+            licenseGroups[key] = {
+                key: key,
+                total: 0,
+                used: 0,
+                free: 0,
+                userName: license.userName,
+                expirationDate: license.expirationDate
+            };
+        }
+        licenseGroups[key].total += license.totalLicenses;
+        licenseGroups[key].used += license.usedLicenses;
+        licenseGroups[key].free = licenseGroups[key].total - licenseGroups[key].used;
+    });
+    
+    container.innerHTML = Object.values(licenseGroups).map(group => `
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-4 hover:shadow-lg transition-all">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">${group.key}</h3>
+                    <p class="text-sm text-gray-600">User: ${group.userName}</p>
+                    <p class="text-sm text-gray-600">Expires: ${formatDate(group.expirationDate)}</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-3xl font-bold text-green-600">${group.free}</div>
+                    <div class="text-xs text-gray-500">of ${group.total} free</div>
+                    <div class="text-xs text-gray-500">(${group.used} used)</div>
+                </div>
+            </div>
+        </div>
+    `).join('');
 }
 
 // Check expiration alerts
