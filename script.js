@@ -17,7 +17,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submissions
     document.getElementById('license-form').addEventListener('submit', handleAddLicense);
     document.getElementById('assign-form').addEventListener('submit', handleAssignLicense);
+    
+    // Close dropdown when clicking outside
+    window.addEventListener('click', function(event) {
+        if (!event.target.matches('#dropdown-btn')) {
+            const dropdown = document.getElementById('dropdown-content');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        }
+    });
 });
+
+// Toggle Dropdown Menu
+function toggleDropdown() {
+    document.getElementById('dropdown-content').classList.toggle('show');
+}
+
+function closeDropdown() {
+    document.getElementById('dropdown-content').classList.remove('show');
+}
 
 // Update current date display
 function updateCurrentDate() {
@@ -28,6 +47,7 @@ function updateCurrentDate() {
 
 // Show/Hide Modals
 function showAddLicenseModal() {
+    closeDropdown();
     document.getElementById('add-license-modal').classList.remove('hidden');
 }
 
@@ -38,6 +58,7 @@ function closeModal() {
 
 // Assign License Modal
 function showAssignLicenseModal() {
+    closeDropdown();
     populateAssignDropdowns();
     document.getElementById('assign-license-modal').classList.remove('hidden');
 }
@@ -45,6 +66,15 @@ function showAssignLicenseModal() {
 function closeAssignModal() {
     document.getElementById('assign-license-modal').classList.add('hidden');
     document.getElementById('assign-form').reset();
+}
+
+// Menu Handlers with Excel Export
+function handleAddLicenseWithExport() {
+    showAddLicenseModal();
+}
+
+function handleAssignWithExport() {
+    showAssignLicenseModal();
 }
 
 // Free Licenses Modal
@@ -88,6 +118,9 @@ function handleAddLicense(e) {
     updateStats();
     checkExpirationAlerts();
     closeModal();
+    
+    // Export the newly added license
+    exportSingleLicense(license);
 }
 
 // Handle Assign License
@@ -106,6 +139,10 @@ function handleAssignLicense(e) {
         renderLicenses();
         updateStats();
         closeAssignModal();
+        
+        // Export assignment details
+        exportAssignment(user, license);
+        
         alert(`License assigned to ${user.name} successfully!`);
     } else {
         alert('No free licenses available for this license type!');
@@ -318,8 +355,10 @@ function deleteLicense(id) {
     }
 }
 
-// Export to Excel
-function exportToExcel() {
+// Export All Licenses to Excel
+function exportAllToExcel() {
+    closeDropdown();
+    
     if (licenses.length === 0) {
         alert('No licenses to export!');
         return;
@@ -339,9 +378,56 @@ function exportToExcel() {
     
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Licenses');
+    XLSX.utils.book_append_sheet(wb, ws, 'All Licenses');
     
-    const fileName = `License_Monitor_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `All_Licenses_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
+
+// Export Single Added License
+function exportSingleLicense(license) {
+    const exportData = [{
+        'User Name': license.userName,
+        'License Key': license.licenseKey,
+        'Assignment Date': license.assignmentDate,
+        'Expiration Date': license.expirationDate,
+        'Days Remaining': getDaysRemaining(license.expirationDate),
+        'Total Licenses': license.totalLicenses,
+        'Used Licenses': license.usedLicenses,
+        'Free Licenses': license.totalLicenses - license.usedLicenses,
+        'Status': getStatus(getDaysRemaining(license.expirationDate)).text
+    }];
+    
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'New License');
+    
+    const fileName = `Added_License_${license.userName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
+
+// Export Assignment Details
+function exportAssignment(user, license) {
+    const exportData = [{
+        'Assigned To': user.name,
+        'User Email': user.email || 'N/A',
+        'Department': user.department || 'N/A',
+        'License Holder': license.userName,
+        'License Key': license.licenseKey,
+        'Assignment Date': new Date().toISOString().split('T')[0],
+        'Expiration Date': license.expirationDate,
+        'Days Remaining': getDaysRemaining(license.expirationDate),
+        'Total Licenses': license.totalLicenses,
+        'Used After Assignment': license.usedLicenses,
+        'Free Licenses': license.totalLicenses - license.usedLicenses,
+        'Status': getStatus(getDaysRemaining(license.expirationDate)).text
+    }];
+    
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Assignment');
+    
+    const fileName = `Assignment_${user.name}_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
 }
 
