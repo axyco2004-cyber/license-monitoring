@@ -76,12 +76,16 @@
                         <div id="dropdown-content" class="dropdown-content">
                             <button onclick="handleAddLicenseWithExport()">📄 Add License</button>
                             <button onclick="handleAssignWithExport()">🔗 Assign to User</button>
+                            <button onclick="openExcelFile()">📂 Open Excel File</button>
                             <button onclick="exportAllToExcel()">📊 Export All to Excel</button>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
+
+        <!-- Hidden File Input for Excel Import -->
+        <input type="file" id="excel-file-input" accept=".xlsx,.xls" style="display: none;" onchange="importExcelFile(event)">
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div class="stat-card">

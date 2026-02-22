@@ -77,6 +77,70 @@ function handleAssignWithExport() {
     showAssignLicenseModal();
 }
 
+// Open Excel File
+function openExcelFile() {
+    closeDropdown();
+    document.getElementById('excel-file-input').click();
+}
+
+// Import Excel File
+function importExcelFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            // Read first sheet
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+            
+            if (jsonData.length === 0) {
+                alert('The Excel file is empty!');
+                return;
+            }
+            
+            // Import licenses from Excel
+            let importedCount = 0;
+            jsonData.forEach(row => {
+                // Check if row has required fields
+                if (row['User Name'] && row['License Key'] && row['Expiration Date']) {
+                    const license = {
+                        id: generateId(),
+                        userName: row['User Name'] || '',
+                        licenseKey: row['License Key'] || '',
+                        assignmentDate: row['Assignment Date'] || new Date().toISOString().split('T')[0],
+                        expirationDate: row['Expiration Date'] || '',
+                        totalLicenses: parseInt(row['Total Licenses']) || 1,
+                        usedLicenses: parseInt(row['Used Licenses']) || 1
+                    };
+                    licenses.push(license);
+                    importedCount++;
+                }
+            });
+            
+            if (importedCount > 0) {
+                saveLicenses();
+                renderLicenses();
+                updateStats();
+                checkExpirationAlerts();
+                alert(`Successfully imported ${importedCount} license(s) from Excel file!`);
+            } else {
+                alert('No valid license data found in the Excel file. Please ensure columns include: User Name, License Key, Expiration Date');
+            }
+        } catch (error) {
+            alert('Error reading Excel file: ' + error.message);
+        }
+    };
+    
+    reader.readAsArrayBuffer(file);
+    // Reset file input
+    event.target.value = '';
+}
+
 // Free Licenses Modal
 function showFreeLicensesModal() {
     renderFreeLicensesList();
