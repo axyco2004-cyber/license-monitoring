@@ -1,84 +1,233 @@
-// Data Storage
+// License Monitoring System
 let licenses = JSON.parse(localStorage.getItem('licenses')) || [];
-let users = JSON.parse(localStorage.getItem('users')) || [];
-let assignments = JSON.parse(localStorage.getItem('assignments')) || [];
 
-// Initialize app
+// Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-    initializeSampleData();
+    updateCurrentDate();
     renderLicenses();
-    renderUsers();
-    renderAssignments();
-    renderDashboard();
     updateStats();
+    checkExpirationAlerts();
+    setInterval(updateCurrentDate, 60000); // Update every minute
     
     // Set today's date as default for date inputs
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('access-date').value = today;
+    document.getElementById('assignment-date').value = today;
     
-    // Show dashboard by default
-    showSection('dashboard');
-    
-    // Form submissions
+    // Form submission
     document.getElementById('license-form').addEventListener('submit', handleAddLicense);
-    document.getElementById('user-form').addEventListener('submit', handleAddUser);
-    document.getElementById('assign-form').addEventListener('submit', handleAssignLicense);
 });
 
-// Section Navigation
-function showSection(sectionName) {
-    // Hide all sections
-    document.querySelectorAll('.section').forEach(section => {
-        section.classList.add('hidden');
-    });
-    
-    // Show selected section
-    const targetSection = document.getElementById(sectionName + '-section');
-    if (targetSection) {
-        targetSection.classList.remove('hidden');
-    }
-    
-    // Update sidebar navigation
-    document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Find and activate matching button
-    const buttons = document.querySelectorAll('.nav-item');
-    buttons.forEach(btn => {
-        const text = btn.textContent.toLowerCase();
-        if (text.includes(sectionName)) {
-            btn.classList.add('active');
-        }
-    });
+// Update current date display
+function updateCurrentDate() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
 }
 
-// Initialize with sample data if empty
-function initializeSampleData() {
+// Show/Hide Modal
+function showAddLicenseModal() {
+    document.getElementById('add-license-modal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('add-license-modal').style.display = 'none';
+    document.getElementById('license-form').reset();
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('add-license-modal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+// Handle Add License
+function handleAddLicense(e) {
+    e.preventDefault();
+    
+    const license = {
+        id: generateId(),
+        userName: document.getElementById('user-name').value,
+        licenseKey: document.getElementById('license-key').value,
+        assignmentDate: document.getElementById('assignment-date').value,
+        expirationDate: document.getElementById('expiration-date').value,
+        totalLicenses: parseInt(document.getElementById('total-licenses-input').value),
+        usedLicenses: 1 // One license used by this user
+    };
+    
+    licenses.push(license);
+    saveLicenses();
+    renderLicenses();
+    updateStats();
+    checkExpirationAlerts();
+    closeModal();
+}
+
+// Generate unique ID
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Save to localStorage
+function saveLicenses() {
+    localStorage.setItem('licenses', JSON.stringify(licenses));
+}
+
+// Render licenses table
+function renderLicenses() {
+    const tbody = document.getElementById('licenses-tbody');
+    
     if (licenses.length === 0) {
-        licenses = [
-            {
-                id: generateId(),
-                softwareName: 'Microsoft Office 365',
-                licenseKey: 'XXXXX-XXXXX-XXXXX-XXXXX',
-                totalSeats: 50,
-                usedSeats: 35,
-                expirationDate: '2026-12-31'
-            },
-            {
-                id: generateId(),
-                softwareName: 'Adobe Creative Cloud',
-                licenseKey: 'ADOBE-XXXXX-XXXXX-XXXXX',
-                totalSeats: 20,
-                usedSeats: 18,
-                expirationDate: '2026-06-30'
-            },
-            {
-                id: generateId(),
-                softwareName: 'Slack Business',
-                licenseKey: 'SLACK-XXXXX-XXXXX-XXXXX',
-                totalSeats: 100,
-                usedSeats: 75,
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#999;">No licenses found. Click "Add License" to get started.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = licenses.map(license => {
+        const daysLeft = getDaysRemaining(license.expirationDate);
+        const freeLicenses = license.totalLicenses - license.usedLicenses;
+        const status = getStatus(daysLeft);
+        
+        return `
+            <tr>
+                <td>${license.userName}</td>
+                <td><code>${license.licenseKey}</code></td>
+                <td>${formatDate(license.assignmentDate)}</td>
+                <td>${formatDate(license.expirationDate)}</td>
+                <td>${daysLeft >= 0 ? daysLeft + ' days' : 'Expired'}</td>
+                <td><strong>${freeLicenses}</strong> of ${license.totalLicenses}</td>
+                <td><span class="status-badge ${status.class}">${status.text}</span></td>
+                <td>
+                    <button class="btn-delete" onclick="deleteLicense('${license.id}')">🗑️ Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Calculate days remaining
+function getDaysRemaining(expirationDate) {
+    const today = new Date();
+    const expDate = new Date(expirationDate);
+    const diffTime = expDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+}
+
+// Format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// Get status
+function getStatus(daysLeft) {
+    if (daysLeft < 0) {
+        return { text: 'Expired', class: 'status-expired' };
+    } else if (daysLeft <= 30) {
+        return { text: 'Expiring Soon', class: 'status-expiring' };
+    } else {
+        return { text: 'Active', class: 'status-active' };
+    }
+}
+
+// Update statistics
+function updateStats() {
+    const totalLicensesCount = licenses.reduce((sum, l) => sum + l.totalLicenses, 0);
+    const usedLicensesCount = licenses.reduce((sum, l) => sum + l.usedLicenses, 0);
+    const freeLicensesCount = totalLicensesCount - usedLicensesCount;
+    const totalUsers = new Set(licenses.map(l => l.userName)).size;
+    const expiringSoon = licenses.filter(l => {
+        const days = getDaysRemaining(l.expirationDate);
+        return days >= 0 && days <= 30;
+    }).length;
+    
+    document.getElementById('total-licenses').textContent = totalLicensesCount;
+    document.getElementById('free-licenses').textContent = freeLicensesCount;
+    document.getElementById('total-users').textContent = totalUsers;
+    document.getElementById('expiring-soon').textContent = expiringSoon;
+}
+
+// Check expiration alerts
+function checkExpirationAlerts() {
+    const alertsContainer = document.getElementById('alerts-container');
+    const expiringLicenses = licenses.filter(l => {
+        const days = getDaysRemaining(l.expirationDate);
+        return days >= 0 && days <= 30;
+    });
+    
+    const expiredLicenses = licenses.filter(l => getDaysRemaining(l.expirationDate) < 0);
+    
+    let alertsHTML = '';
+    
+    if (expiredLicenses.length > 0) {
+        alertsHTML += '<h3 style="color:#dc3545; margin-bottom:16px;">⚠️ Expired Licenses</h3>';
+        expiredLicenses.forEach(license => {
+            alertsHTML += `
+                <div class="alert-item">
+                    <strong>${license.userName}</strong> - License ${license.licenseKey} has expired on ${formatDate(license.expirationDate)}
+                </div>
+            `;
+        });
+    }
+    
+    if (expiringLicenses.length > 0) {
+        alertsHTML += '<h3 style="color:#ff6b6b; margin:24px 0 16px 0;">⏰ Expiring Soon (Next 30 Days)</h3>';
+        expiringLicenses.forEach(license => {
+            const daysLeft = getDaysRemaining(license.expirationDate);
+            alertsHTML += `
+                <div class="alert-item">
+                    <strong>${license.userName}</strong> - License ${license.licenseKey} expires in ${daysLeft} days (${formatDate(license.expirationDate)})
+                </div>
+            `;
+        });
+    }
+    
+    if (alertsHTML === '') {
+        alertsHTML = '<p style="color:#666; text-align:center; padding:20px;">✅ No expiration alerts. All licenses are in good standing!</p>';
+    }
+    
+    alertsContainer.innerHTML = alertsHTML;
+}
+
+// Delete license
+function deleteLicense(id) {
+    if (confirm('Are you sure you want to delete this license?')) {
+        licenses = licenses.filter(l => l.id !== id);
+        saveLicenses();
+        renderLicenses();
+        updateStats();
+        checkExpirationAlerts();
+    }
+}
+
+// Export to Excel
+function exportToExcel() {
+    if (licenses.length === 0) {
+        alert('No licenses to export!');
+        return;
+    }
+    
+    const exportData = licenses.map(license => ({
+        'User Name': license.userName,
+        'License Key': license.licenseKey,
+        'Assignment Date': license.assignmentDate,
+        'Expiration Date': license.expirationDate,
+        'Days Remaining': getDaysRemaining(license.expirationDate),
+        'Total Licenses': license.totalLicenses,
+        'Used Licenses': license.usedLicenses,
+        'Free Licenses': license.totalLicenses - license.usedLicenses,
+        'Status': getStatus(getDaysRemaining(license.expirationDate)).text
+    }));
+    
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Licenses');
+    
+    const fileName = `License_Monitor_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
+
                 expirationDate: '2026-03-15'
             }
         ];
@@ -511,26 +660,11 @@ function updateStats() {
         return days >= 0 && days <= 30;
     }).length;
     const expired = licenses.filter(l => getDaysRemaining(l.expirationDate) < 0).length;
-    const totalSeats = licenses.reduce((sum, l) => sum + l.totalSeats, 0);
-    const usedSeats = licenses.reduce((sum, l) => sum + l.usedSeats, 0);
     
-    // Update dashboard categories
-    document.getElementById('total-licenses').textContent = `${totalLicenses} items`;
-    document.getElementById('total-users').textContent = `${users.length} items`;
-    document.getElementById('total-assignments').textContent = `${assignments.length} items`;
-    document.getElementById('expiring-count').textContent = `${expiringSoon} items`;
-    
-    // Update stats cards
-    document.getElementById('stat-active').textContent = `${totalLicenses} licenses`;
-    document.getElementById('stat-available').textContent = `${availableSeats} seats`;
-    document.getElementById('stat-expiring').textContent = `${expiringSoon} licenses`;
-    document.getElementById('stat-expired').textContent = `${expired} licenses`;
-    
-    // Update usage stats in right sidebar
-    const usagePercent = totalSeats > 0 ? Math.round((usedSeats / totalSeats) * 100) : 0;
-    document.getElementById('usage-percent').textContent = `${usagePercent}% used`;
-    document.getElementById('usage-bar').style.width = `${usagePercent}%`;
-    document.getElementById('usage-text').textContent = `${usedSeats} of ${totalSeats} seats are used`;
+    document.getElementById('total-licenses').textContent = totalLicenses;
+    document.getElementById('available-licenses').textContent = availableSeats;
+    document.getElementById('expiring-soon').textContent = expiringSoon;
+    document.getElementById('expired-licenses').textContent = expired;
 }
 
 // Excel Export Function

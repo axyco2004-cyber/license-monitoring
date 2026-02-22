@@ -4,186 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>License Monitor - Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=5.0">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="gw-header">
-      <img src="https://storage.googleapis.com/gweb-workspace-assets/uploads/7uffzv9dk4sn-2QNOheeN6FD0S5Sfmqzhjn-b7f4e1aad73efc4d18b33d89e934fac5-logo-google.svg" alt="Google Workspace" class="gw-logo">
-      <nav class="gw-nav">
-        <a href="#">Apps</a>
-        <a href="#">Security</a>
-        <a href="#">Support</a>
-      </nav>
-    </div>
-    <div class="gw-container">
-      <aside class="gw-sidebar">
-        <button><img src="https://lh3.googleusercontent.com/nKxpvWxsFjqJgimml3R4tpqlaKOp2uxX8seNOd_rPO2_00WmZET1tMeMAjf3UfXvEBK8xGEeVKrF5mu17ZRpsRso09h8Vti4lc7Y=e365-pa-nu-rw-w1024" alt="Gmail" style="height:32px;"></button>
-        <button><img src="https://lh3.googleusercontent.com/uLcft0NGwQMvNER-XllrORKFHmLkktZT4asP3FYLs3r3adDnZptTbV9KijVrap1ISHHopat62ubWC4UsBGiC-H7ihIehKLXxG-AR=e365-pa-nu-rw-w1024" alt="Drive" style="height:32px;"></button>
-        <button><img src="https://lh3.googleusercontent.com/jpj41CUncuPcIKcfc8EfnX2dAZD5hki83WH54odaZwPKz514AAsTPc-13l94bJncvoWNu-Twzd9IRo7Z67ojk2mRzfYx5sDuYKCUbQ=e365-pa-nu-rw-w1024" alt="Docs" style="height:32px;"></button>
-        <!-- More app icons -->
-      </aside>
-      <main class="gw-main">
-        <div class="gw-cards">
-          <div class="gw-card">
-            <h3>Gmail</h3>
-            <p>Check your inbox</p>
-          </div>
-          <div class="gw-card">
-            <h3>Drive</h3>
-            <p>Access your files</p>
-          </div>
-          <div class="gw-card">
-            <h3>Docs</h3>
-            <p>Edit documents</p>
-          </div>
-          <!-- More cards -->
+    <div class="container">
+        <header class="header">
+            <h1>📋 License Monitor</h1>
+            <div class="header-info">
+                <span id="current-date"></span>
+                <button class="btn-export" onclick="exportToExcel()">📊 Export to Excel</button>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-info">
+                    <h3 id="total-licenses">0</h3>
+                    <p>Total Licenses</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h3 id="free-licenses">0</h3>
+                    <p>Free Licenses</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3 id="total-users">0</h3>
+                    <p>Active Users</p>
+                </div>
+            </div>
+            <div class="stat-card alert">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <h3 id="expiring-soon">0</h3>
+                    <p>Expiring Soon</p>
+                </div>
+            </div>
         </div>
-      </main>
+
+        <div class="actions">
+            <button class="btn-primary" onclick="showAddLicenseModal()">➕ Add License</button>
+        </div>
+
+        <div class="table-container">
+            <h2>License Inventory</h2>
+            <table id="licenses-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>License Key</th>
+                        <th>Assignment Date</th>
+                        <th>Expiration Date</th>
+                        <th>Days Left</th>
+                        <th>Free Licenses</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="licenses-tbody">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="alerts-container" class="alerts-container"></div>
     </div>
 
-            <!-- Licenses Section -->
-            <div class="section hidden" id="licenses-section">
-                <div class="badge">Software Licenses • Inventory Management</div>
-                
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">📜 All Licenses</h2>
-                        <p class="subtitle">Manage your software license inventory</p>
-                    </div>
-                    <button class="btn-add" onclick="showAddLicenseModal()">➕ Add New License</button>
-                </div>
-
-                <div class="recent-files">
-                    <table id="licenses-table">
-                        <thead>
-                            <tr>
-                                <th>Software Name</th>
-                                <th>License Key</th>
-                                <th>Total Seats</th>
-                                <th>Used</th>
-                                <th>Available</th>
-                                <th>Expiration</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="licenses-tbody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Users Section -->
-            <div class="section hidden" id="users-section">
-                <div class="badge">User Management • Access Control</div>
-                
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">👥 All Users</h2>
-                        <p class="subtitle">Manage licensed users and departments</p>
-                    </div>
-                    <button class="btn-add" onclick="showAddUserModal()">➕ Add New User</button>
-                </div>
-
-                <div class="recent-files">
-                    <table id="users-table">
-                        <thead>
-                            <tr>
-                                <th>User Name</th>
-                                <th>Email</th>
-                                <th>Department</th>
-                                <th>Active Licenses</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-tbody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Assignments Section -->
-            <div class="section hidden" id="assignments-section">
-                <div class="badge">License Assignments • User Allocation</div>
-                
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">🔗 License Assignments</h2>
-                        <p class="subtitle">Track which licenses are assigned to which users</p>
-                    </div>
-                    <button class="btn-add" onclick="showAssignLicenseModal()">➕ Assign License</button>
-                </div>
-
-                <div class="recent-files">
-                    <table id="assignments-table">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Software</th>
-                                <th>Access Date</th>
-                                <th>Expires</th>
-                                <th>Days Left</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="assignments-tbody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-
-        <!-- Right Sidebar -->
-        <aside class="right-sidebar">
-            <div class="upload-section">
-                <div class="upload-icon">📤</div>
-                <div class="upload-text">Add new items</div>
-            </div>
-
-            <div class="storage-section">
-                <div class="storage-header">
-                    <span class="storage-title">📈 License Usage</span>
-                    <span class="storage-percent" id="usage-percent">0%</span>
-                </div>
-                <div class="storage-bar">
-                    <div class="storage-progress" id="usage-bar" style="width: 0%"></div>
-                </div>
-                <div class="storage-text" id="usage-text">0 of 0 licenses used</div>
-            </div>
-
-            <div class="shared-folders">
-                <div class="shared-header">🕒 Recent Activity</div>
-                <div id="recent-activity"></div>
-            </div>
-        </aside>
-    </div>
-
-    <!-- Modals -->
-    <div id="license-modal" class="modal">
+    <!-- Add License Modal -->
+    <div id="add-license-modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('license-modal')">&times;</span>
-            <h2>🎉 Add New License</h2>
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Add New License</h2>
             <form id="license-form">
                 <div class="form-group">
-                    <label>Software Name</label>
-                    <input type="text" id="software-name" placeholder="Enter software name" required>
+                    <label>User Name</label>
+                    <input type="text" id="user-name" required>
                 </div>
                 <div class="form-group">
                     <label>License Key</label>
-                    <input type="text" id="license-key" placeholder="Enter license key" required>
+                    <input type="text" id="license-key" required>
                 </div>
                 <div class="form-group">
-                    <label>Total Seats</label>
-                    <input type="number" id="total-seats" placeholder="Enter number of seats" min="1" required>
+                    <label>Assignment Date</label>
+                    <input type="date" id="assignment-date" required>
                 </div>
                 <div class="form-group">
                     <label>Expiration Date</label>
                     <input type="date" id="expiration-date" required>
                 </div>
+                <div class="form-group">
+                    <label>Total Licenses Available</label>
+                    <input type="number" id="total-licenses-input" min="1" required>
+                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Add License</button>
-                    <button type="button" class="btn-cancel" onclick="closeModal('license-modal')">Cancel</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
                 </div>
             </form>
         </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
     </div>
 
     <div id="user-modal" class="modal">
