@@ -43,83 +43,69 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Dashboard Section -->
-            <div class="section" id="dashboard-section">
-                <div class="badge">#1 License Monitoring • Enterprise Dashboard</div>
-                
+            <div class="section" id="dashboard-section" style="background:#fff; border-radius:16px; box-shadow:0 2px 16px rgba(0,0,0,0.06); padding:32px;">
+                <div class="badge">License Monitor • Office Dashboard</div>
                 <div class="header">
                     <div>
                         <div class="title">License Management System</div>
-                        <div class="subtitle">Track and manage software licenses, users, and assignments in real-time.</div>
-                        <p class="tagline">
-                            Complete visibility into your software license inventory with automated expiration alerts.
-                        </p>
+                        <div class="subtitle">User-friendly office dashboard for managing licenses, users, and assignments.</div>
+                        <p class="tagline">Effortlessly track your software assets with a clean, modern interface inspired by productivity suites.</p>
                         <div class="meta">
-                            <span><strong id="total-licenses">0</strong> total licenses</span>
+                            <span><strong id="total-licenses">0</strong> licenses</span>
                             <span><strong id="total-users">0</strong> users</span>
                             <span><strong id="total-assignments">0</strong> assignments</span>
                             <span><strong id="expiring-count">0</strong> expiring soon</span>
                         </div>
                     </div>
                     <div>
-                        <span class="pill">📊 Real-time tracking</span>
+                        <span class="pill" style="background:#2563eb;color:#fff;border-radius:6px;padding:6px 16px;font-weight:600;">Real-time tracking</span>
                     </div>
                 </div>
-
-                <h2 class="section-title">📈 License Statistics</h2>
-                <p class="subtitle">
-                    Monitor active licenses, available seats, and upcoming expirations.
-                </p>
-                
-                <div class="grid">
-                    <div class="card" onclick="showSection('licenses')">
-                        <h3>📦 Active Licenses</h3>
-                        <ul>
+                <div class="office-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:32px;">
+                    <div class="office-card" style="background:#f4f6fa;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(37,99,235,0.08);">
+                        <h3 style="color:#2563eb;font-size:18px;margin-bottom:12px;">📦 Active Licenses</h3>
+                        <ul style="color:#374151;font-size:13px;margin-bottom:16px;">
                             <li>Currently in use</li>
                             <li>Full seat utilization</li>
                             <li>Click to view all</li>
                         </ul>
-                        <div class="card-value" id="stat-active">0 licenses</div>
+                        <div class="card-value" id="stat-active" style="font-size:24px;font-weight:700;color:#2563eb;">0 licenses</div>
                     </div>
-
-                    <div class="card">
-                        <h3>✅ Available Seats</h3>
-                        <ul>
+                    <div class="office-card" style="background:#f4f6fa;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(37,99,235,0.08);">
+                        <h3 style="color:#2563eb;font-size:18px;margin-bottom:12px;">✅ Available Seats</h3>
+                        <ul style="color:#374151;font-size:13px;margin-bottom:16px;">
                             <li>Unassigned licenses</li>
                             <li>Ready for allocation</li>
                             <li>Capacity remaining</li>
                         </ul>
-                        <div class="card-value" id="stat-available">0 seats</div>
+                        <div class="card-value" id="stat-available" style="font-size:24px;font-weight:700;color:#2563eb;">0 seats</div>
                     </div>
-
-                    <div class="card">
-                        <h3>⏰ Expiring Soon</h3>
-                        <ul>
+                    <div class="office-card" style="background:#f4f6fa;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(37,99,235,0.08);">
+                        <h3 style="color:#2563eb;font-size:18px;margin-bottom:12px;">⏰ Expiring Soon</h3>
+                        <ul style="color:#374151;font-size:13px;margin-bottom:16px;">
                             <li>Next 30 days</li>
                             <li>Renewal required</li>
                             <li>Action needed</li>
                         </ul>
-                        <div class="card-value" id="stat-expiring">0 licenses</div>
+                        <div class="card-value" id="stat-expiring" style="font-size:24px;font-weight:700;color:#2563eb;">0 licenses</div>
                     </div>
-
-                    <div class="card">
-                        <h3>❌ Expired</h3>
-                        <ul>
+                    <div class="office-card" style="background:#f4f6fa;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(37,99,235,0.08);">
+                        <h3 style="color:#2563eb;font-size:18px;margin-bottom:12px;">❌ Expired</h3>
+                        <ul style="color:#374151;font-size:13px;margin-bottom:16px;">
                             <li>Past expiration date</li>
                             <li>No longer valid</li>
                             <li>Immediate attention</li>
                         </ul>
-                        <div class="card-value" id="stat-expired">0 licenses</div>
+                        <div class="card-value" id="stat-expired" style="font-size:24px;font-weight:700;color:#2563eb;">0 licenses</div>
                     </div>
                 </div>
-
-                <h2 class="section-title">🔔 Recent Alerts & Notifications</h2>
-                <p class="subtitle">
+                <h2 class="section-title" style="color:#2563eb;margin-top:24px;">🔔 Recent Alerts & Notifications</h2>
+                <p class="subtitle" style="color:#374151;">
                     Stay informed about license expirations and important updates.
                 </p>
                 <div class="recent-files" id="alerts-container"></div>
-                
-                <p class="footer-note">
-                    💡 All data stored locally in your browser. Export to Excel for backups and reports.  
+                <p class="footer-note" style="margin-top:32px;color:#6b7280;font-size:13px;">
+                    💡 All data stored locally in your browser. Export to Excel for backups and reports.<br>
                     © 2026 License Monitor – Keep your software licenses organized.
                 </p>
             </div>
