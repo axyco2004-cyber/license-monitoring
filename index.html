@@ -4,7 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>License Monitor - Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @layer components {
+            .stat-card {
+                @apply bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1;
+            }
+            
+            .stat-card.alert {
+                @apply bg-gradient-to-br from-red-500 to-pink-600 text-white;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen p-6">
     <div class="max-w-7xl mx-auto">
