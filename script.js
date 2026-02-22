@@ -62,9 +62,29 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Toggle Dropdown Menu
-function toggleDropdown() {
+function toggleDropdown(event) {
+    event.stopPropagation();
     document.getElementById('dropdown-content').classList.toggle('show');
 }
+
+// Prevent dropdown from closing when clicking inside
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdownContent = document.getElementById('dropdown-content');
+    if (dropdownContent) {
+        dropdownContent.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    }
+});
+
+// Only close dropdown if click is outside both button and menu
+window.addEventListener('click', function(event) {
+    const btn = document.getElementById('dropdown-btn');
+    const menu = document.getElementById('dropdown-content');
+    if (!btn.contains(event.target) && !menu.contains(event.target)) {
+        menu.classList.remove('show');
+    }
+});
 
 function closeDropdown() {
     document.getElementById('dropdown-content').classList.remove('show');
