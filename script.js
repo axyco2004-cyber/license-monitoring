@@ -1,3 +1,35 @@
+// Show/Hide Add User Modal
+function showAddUserModal() {
+    closeDropdown();
+    document.getElementById('add-user-modal').classList.remove('hidden');
+}
+
+function closeUserModal() {
+    document.getElementById('add-user-modal').classList.add('hidden');
+    document.getElementById('user-form').reset();
+}
+
+// Handle Add User
+document.addEventListener('DOMContentLoaded', function() {
+    const userForm = document.getElementById('user-form');
+    if (userForm) {
+        userForm.addEventListener('submit', handleAddUser);
+    }
+});
+
+function handleAddUser(e) {
+    e.preventDefault();
+    const user = {
+        id: generateId(),
+        name: document.getElementById('new-user-name').value,
+        email: document.getElementById('user-email').value,
+        department: document.getElementById('user-department').value || 'N/A'
+    };
+    users.push(user);
+    saveUsers();
+    closeUserModal();
+    alert('User added successfully!');
+}
 // License Monitoring System
 let licenses = JSON.parse(localStorage.getItem('licenses')) || [];
 let users = JSON.parse(localStorage.getItem('users')) || [];
