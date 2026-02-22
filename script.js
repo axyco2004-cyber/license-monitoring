@@ -26,11 +26,11 @@ function updateCurrentDate() {
 
 // Show/Hide Modal
 function showAddLicenseModal() {
-    document.getElementById('add-license-modal').style.display = 'block';
+    document.getElementById('add-license-modal').classList.remove('hidden');
 }
 
 function closeModal() {
-    document.getElementById('add-license-modal').style.display = 'none';
+    document.getElementById('add-license-modal').classList.add('hidden');
     document.getElementById('license-form').reset();
 }
 
@@ -79,7 +79,7 @@ function renderLicenses() {
     const tbody = document.getElementById('licenses-tbody');
     
     if (licenses.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px; color:#999;">No licenses found. Click "Add License" to get started.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-12 text-center text-gray-400 text-lg">No licenses found. Click "Add License" to get started.</td></tr>';
         return;
     }
     
@@ -89,16 +89,16 @@ function renderLicenses() {
         const status = getStatus(daysLeft);
         
         return `
-            <tr>
-                <td>${license.userName}</td>
-                <td><code>${license.licenseKey}</code></td>
-                <td>${formatDate(license.assignmentDate)}</td>
-                <td>${formatDate(license.expirationDate)}</td>
-                <td>${daysLeft >= 0 ? daysLeft + ' days' : 'Expired'}</td>
-                <td><strong>${freeLicenses}</strong> of ${license.totalLicenses}</td>
-                <td><span class="status-badge ${status.class}">${status.text}</span></td>
-                <td>
-                    <button class="btn-delete" onclick="deleteLicense('${license.id}')">🗑️ Delete</button>
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 text-gray-800 font-medium">${license.userName}</td>
+                <td class="px-6 py-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm text-indigo-600">${license.licenseKey}</code></td>
+                <td class="px-6 py-4 text-gray-600">${formatDate(license.assignmentDate)}</td>
+                <td class="px-6 py-4 text-gray-600">${formatDate(license.expirationDate)}</td>
+                <td class="px-6 py-4 text-gray-800 font-semibold">${daysLeft >= 0 ? daysLeft + ' days' : 'Expired'}</td>
+                <td class="px-6 py-4"><strong class="text-green-600">${freeLicenses}</strong> <span class="text-gray-400">of ${license.totalLicenses}</span></td>
+                <td class="px-6 py-4"><span class="${status.class}">${status.text}</span></td>
+                <td class="px-6 py-4">
+                    <button onclick="deleteLicense('${license.id}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-lg">🗑️ Delete</button>
                 </td>
             </tr>
         `;
@@ -123,11 +123,11 @@ function formatDate(dateString) {
 // Get status
 function getStatus(daysLeft) {
     if (daysLeft < 0) {
-        return { text: 'Expired', class: 'status-expired' };
+        return { text: 'Expired', class: 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800' };
     } else if (daysLeft <= 30) {
-        return { text: 'Expiring Soon', class: 'status-expiring' };
+        return { text: 'Expiring Soon', class: 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800' };
     } else {
-        return { text: 'Active', class: 'status-active' };
+        return { text: 'Active', class: 'inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800' };
     }
 }
 
@@ -161,30 +161,30 @@ function checkExpirationAlerts() {
     let alertsHTML = '';
     
     if (expiredLicenses.length > 0) {
-        alertsHTML += '<h3 style="color:#dc3545; margin-bottom:16px;">⚠️ Expired Licenses</h3>';
+        alertsHTML += '<h3 class="text-xl font-bold text-red-600 mb-4">⚠️ Expired Licenses</h3>';
         expiredLicenses.forEach(license => {
             alertsHTML += `
-                <div class="alert-item">
-                    <strong>${license.userName}</strong> - License ${license.licenseKey} has expired on ${formatDate(license.expirationDate)}
+                <div class="bg-gradient-to-r from-red-500 to-pink-600 text-white p-4 rounded-lg mb-3 shadow-lg animate-pulse">
+                    <strong class="font-semibold">${license.userName}</strong> - License ${license.licenseKey} has expired on ${formatDate(license.expirationDate)}
                 </div>
             `;
         });
     }
     
     if (expiringLicenses.length > 0) {
-        alertsHTML += '<h3 style="color:#ff6b6b; margin:24px 0 16px 0;">⏰ Expiring Soon (Next 30 Days)</h3>';
+        alertsHTML += '<h3 class="text-xl font-bold text-orange-600 mb-4 mt-6">⏰ Expiring Soon (Next 30 Days)</h3>';
         expiringLicenses.forEach(license => {
             const daysLeft = getDaysRemaining(license.expirationDate);
             alertsHTML += `
-                <div class="alert-item">
-                    <strong>${license.userName}</strong> - License ${license.licenseKey} expires in ${daysLeft} days (${formatDate(license.expirationDate)})
+                <div class="bg-gradient-to-r from-orange-400 to-yellow-500 text-white p-4 rounded-lg mb-3 shadow-lg">
+                    <strong class="font-semibold">${license.userName}</strong> - License ${license.licenseKey} expires in ${daysLeft} days (${formatDate(license.expirationDate)})
                 </div>
             `;
         });
     }
     
     if (alertsHTML === '') {
-        alertsHTML = '<p style="color:#666; text-align:center; padding:20px;">✅ No expiration alerts. All licenses are in good standing!</p>';
+        alertsHTML = '<p class="text-center text-gray-400 py-8 text-lg">✅ No expiration alerts. All licenses are in good standing!</p>';
     }
     
     alertsContainer.innerHTML = alertsHTML;

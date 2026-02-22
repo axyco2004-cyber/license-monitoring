@@ -1,14 +1,15 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 20px;
+@layer components {
+    .stat-card {
+        @apply bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1;
+    }
+    
+    .stat-card.alert {
+        @apply bg-gradient-to-br from-red-500 to-pink-600 text-white;
+    }
 }
 
 .container {

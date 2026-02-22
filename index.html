@@ -6,103 +6,120 @@
     <title>License Monitor - Dashboard</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1>📋 License Monitor</h1>
-            <div class="header-info">
-                <span id="current-date"></span>
-                <button class="btn-export" onclick="exportToExcel()">📊 Export to Excel</button>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen p-6">
+    <div class="max-w-7xl mx-auto">
+        <header class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">📋 License Monitor</h1>
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <span id="current-date" class="text-gray-600 text-sm"></span>
+                    <button onclick="exportToExcel()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
+                        📊 Export to Excel
+                    </button>
+                </div>
             </div>
         </header>
 
-        <div class="stats-grid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div class="stat-card">
-                <div class="stat-icon">📦</div>
-                <div class="stat-info">
-                    <h3 id="total-licenses">0</h3>
-                    <p>Total Licenses</p>
+                <div class="flex items-center gap-4">
+                    <div class="text-5xl">📦</div>
+                    <div>
+                        <h3 id="total-licenses" class="text-3xl font-bold text-indigo-600">0</h3>
+                        <p class="text-gray-600 text-sm font-medium">Total Licenses</p>
+                    </div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-info">
-                    <h3 id="free-licenses">0</h3>
-                    <p>Free Licenses</p>
+                <div class="flex items-center gap-4">
+                    <div class="text-5xl">✅</div>
+                    <div>
+                        <h3 id="free-licenses" class="text-3xl font-bold text-green-600">0</h3>
+                        <p class="text-gray-600 text-sm font-medium">Free Licenses</p>
+                    </div>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">👥</div>
-                <div class="stat-info">
-                    <h3 id="total-users">0</h3>
-                    <p>Active Users</p>
+                <div class="flex items-center gap-4">
+                    <div class="text-5xl">👥</div>
+                    <div>
+                        <h3 id="total-users" class="text-3xl font-bold text-blue-600">0</h3>
+                        <p class="text-gray-600 text-sm font-medium">Active Users</p>
+                    </div>
                 </div>
             </div>
             <div class="stat-card alert">
-                <div class="stat-icon">⚠️</div>
-                <div class="stat-info">
-                    <h3 id="expiring-soon">0</h3>
-                    <p>Expiring Soon</p>
+                <div class="flex items-center gap-4">
+                    <div class="text-5xl">⚠️</div>
+                    <div>
+                        <h3 id="expiring-soon" class="text-3xl font-bold">0</h3>
+                        <p class="text-white/90 text-sm font-medium">Expiring Soon</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="actions">
-            <button class="btn-primary" onclick="showAddLicenseModal()">➕ Add License</button>
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">License Inventory</h2>
+                <button onclick="showAddLicenseModal()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
+                    ➕ Add License
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="licenses-table" class="w-full">
+                    <thead class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">User</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">License Key</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Assignment Date</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Expiration Date</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Days Left</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Free Licenses</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="licenses-tbody" class="divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="table-container">
-            <h2>License Inventory</h2>
-            <table id="licenses-table">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>License Key</th>
-                        <th>Assignment Date</th>
-                        <th>Expiration Date</th>
-                        <th>Days Left</th>
-                        <th>Free Licenses</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="licenses-tbody">
-                </tbody>
-            </table>
-        </div>
-
-        <div id="alerts-container" class="alerts-container"></div>
+        <div id="alerts-container" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8"></div>
     </div>
 
     <!-- Add License Modal -->
-    <div id="add-license-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Add New License</h2>
-            <form id="license-form">
-                <div class="form-group">
-                    <label>User Name</label>
-                    <input type="text" id="user-name" required>
+    <div id="add-license-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Add New License</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-3xl font-bold transition-colors">&times;</button>
+            </div>
+            <form id="license-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">User Name</label>
+                    <input type="text" id="user-name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none">
                 </div>
-                <div class="form-group">
-                    <label>License Key</label>
-                    <input type="text" id="license-key" required>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">License Key</label>
+                    <input type="text" id="license-key" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none">
                 </div>
-                <div class="form-group">
-                    <label>Assignment Date</label>
-                    <input type="date" id="assignment-date" required>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Assignment Date</label>
+                    <input type="date" id="assignment-date" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none">
                 </div>
-                <div class="form-group">
-                    <label>Expiration Date</label>
-                    <input type="date" id="expiration-date" required>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Expiration Date</label>
+                    <input type="date" id="expiration-date" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none">
                 </div>
-                <div class="form-group">
-                    <label>Total Licenses Available</label>
-                    <input type="number" id="total-licenses-input" min="1" required>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Total Licenses Available</label>
+                    <input type="number" id="total-licenses-input" min="1" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none">
                 </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Add License</button>
-                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">Add License</button>
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-all duration-300">Cancel</button>
                 </div>
             </form>
         </div>
