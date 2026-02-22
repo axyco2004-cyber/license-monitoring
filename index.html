@@ -42,87 +42,97 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <div class="top-bar">
-                <input type="text" class="search-box" placeholder="🔍 Search anything... Licenses, Users, Dates...">
-                <button class="pro-badge">✨ Pro Mode Active ✨</button>
-            </div>
-
             <!-- Dashboard Section -->
             <div class="section" id="dashboard-section">
-                <h2 class="section-title">📊 Your License Overview</h2>
+                <div class="badge">#1 License Monitoring • Enterprise Dashboard</div>
                 
-                <div class="category-grid">
-                    <div class="category-card purple">
-                        <div class="category-icon">🎫</div>
-                        <div class="category-info">
-                            <div class="category-name">Licenses</div>
-                            <div class="category-count" id="total-licenses">0 items</div>
+                <div class="header">
+                    <div>
+                        <div class="title">License Management System</div>
+                        <div class="subtitle">Track and manage software licenses, users, and assignments in real-time.</div>
+                        <p class="tagline">
+                            Complete visibility into your software license inventory with automated expiration alerts.
+                        </p>
+                        <div class="meta">
+                            <span><strong id="total-licenses">0</strong> total licenses</span>
+                            <span><strong id="total-users">0</strong> users</span>
+                            <span><strong id="total-assignments">0</strong> assignments</span>
+                            <span><strong id="expiring-count">0</strong> expiring soon</span>
                         </div>
                     </div>
-                    <div class="category-card cyan">
-                        <div class="category-icon">👥</div>
-                        <div class="category-info">
-                            <div class="category-name">Users</div>
-                            <div class="category-count" id="total-users">0 items</div>
-                        </div>
-                    </div>
-                    <div class="category-card pink">
-                        <div class="category-icon">📋</div>
-                        <div class="category-info">
-                            <div class="category-name">Assignments</div>
-                            <div class="category-count" id="total-assignments">0 items</div>
-                        </div>
-                    </div>
-                    <div class="category-card blue">
-                        <div class="category-icon">⚠️</div>
-                        <div class="category-info">
-                            <div class="category-name">Expiring</div>
-                            <div class="category-count" id="expiring-count">0 items</div>
-                        </div>
+                    <div>
+                        <span class="pill">📊 Real-time tracking</span>
                     </div>
                 </div>
 
-                <h2 class="section-title">🎯 Quick Stats</h2>
+                <h2 class="section-title">📈 License Statistics</h2>
+                <p class="subtitle">
+                    Monitor active licenses, available seats, and upcoming expirations.
+                </p>
                 
-                <div class="file-grid">
-                    <div class="file-card" onclick="showSection('licenses')">
-                        <div class="file-icon purple">📦</div>
-                        <div class="file-info">
-                            <div class="file-name">Active Licenses</div>
-                            <div class="file-count" id="stat-active">0 licenses</div>
-                        </div>
+                <div class="grid">
+                    <div class="card" onclick="showSection('licenses')">
+                        <h3>📦 Active Licenses</h3>
+                        <ul>
+                            <li>Currently in use</li>
+                            <li>Full seat utilization</li>
+                            <li>Click to view all</li>
+                        </ul>
+                        <div class="card-value" id="stat-active">0 licenses</div>
                     </div>
-                    <div class="file-card">
-                        <div class="file-icon cyan">✅</div>
-                        <div class="file-info">
-                            <div class="file-name">Available Seats</div>
-                            <div class="file-count" id="stat-available">0 seats</div>
-                        </div>
+
+                    <div class="card">
+                        <h3>✅ Available Seats</h3>
+                        <ul>
+                            <li>Unassigned licenses</li>
+                            <li>Ready for allocation</li>
+                            <li>Capacity remaining</li>
+                        </ul>
+                        <div class="card-value" id="stat-available">0 seats</div>
                     </div>
-                    <div class="file-card">
-                        <div class="file-icon pink">⏰</div>
-                        <div class="file-info">
-                            <div class="file-name">Expiring Soon</div>
-                            <div class="file-count" id="stat-expiring">0 licenses</div>
-                        </div>
+
+                    <div class="card">
+                        <h3>⏰ Expiring Soon</h3>
+                        <ul>
+                            <li>Next 30 days</li>
+                            <li>Renewal required</li>
+                            <li>Action needed</li>
+                        </ul>
+                        <div class="card-value" id="stat-expiring">0 licenses</div>
                     </div>
-                    <div class="file-card">
-                        <div class="file-icon blue">❌</div>
-                        <div class="file-info">
-                            <div class="file-name">Expired</div>
-                            <div class="file-count" id="stat-expired">0 licenses</div>
-                        </div>
+
+                    <div class="card">
+                        <h3>❌ Expired</h3>
+                        <ul>
+                            <li>Past expiration date</li>
+                            <li>No longer valid</li>
+                            <li>Immediate attention</li>
+                        </ul>
+                        <div class="card-value" id="stat-expired">0 licenses</div>
                     </div>
                 </div>
 
-                <h2 class="section-title">🔔 Recent Alerts</h2>
+                <h2 class="section-title">🔔 Recent Alerts & Notifications</h2>
+                <p class="subtitle">
+                    Stay informed about license expirations and important updates.
+                </p>
                 <div class="recent-files" id="alerts-container"></div>
+                
+                <p class="footer-note">
+                    💡 All data stored locally in your browser. Export to Excel for backups and reports.  
+                    © 2026 License Monitor – Keep your software licenses organized.
+                </p>
             </div>
 
             <!-- Licenses Section -->
             <div class="section hidden" id="licenses-section">
+                <div class="badge">Software Licenses • Inventory Management</div>
+                
                 <div class="section-header">
-                    <h2 class="section-title">📜 All Licenses</h2>
+                    <div>
+                        <h2 class="section-title">📜 All Licenses</h2>
+                        <p class="subtitle">Manage your software license inventory</p>
+                    </div>
                     <button class="btn-add" onclick="showAddLicenseModal()">➕ Add New License</button>
                 </div>
 
@@ -147,8 +157,13 @@
 
             <!-- Users Section -->
             <div class="section hidden" id="users-section">
+                <div class="badge">User Management • Access Control</div>
+                
                 <div class="section-header">
-                    <h2 class="section-title">👥 All Users</h2>
+                    <div>
+                        <h2 class="section-title">👥 All Users</h2>
+                        <p class="subtitle">Manage licensed users and departments</p>
+                    </div>
                     <button class="btn-add" onclick="showAddUserModal()">➕ Add New User</button>
                 </div>
 
@@ -170,8 +185,13 @@
 
             <!-- Assignments Section -->
             <div class="section hidden" id="assignments-section">
+                <div class="badge">License Assignments • User Allocation</div>
+                
                 <div class="section-header">
-                    <h2 class="section-title">🔗 License Assignments</h2>
+                    <div>
+                        <h2 class="section-title">🔗 License Assignments</h2>
+                        <p class="subtitle">Track which licenses are assigned to which users</p>
+                    </div>
                     <button class="btn-add" onclick="showAssignLicenseModal()">➕ Assign License</button>
                 </div>
 
