@@ -238,26 +238,31 @@ function handleAssignLicense(e) {
     const userId = document.getElementById('assign-user-select').value;
     const licenseId = document.getElementById('assign-license-select').value;
     
+    if (!userId || !licenseId) {
+        alert('Please select both a user and a license!');
+        return;
+    }
+    
     const user = users.find(u => u.id === userId);
     const license = licenses.find(l => l.id === licenseId);
     
-    if (license && license.usedLicenses < license.totalLicenses) {
-        license.usedLicenses++;
-        saveLicenses();
-        renderLicenses();
-        updateStats();
-        closeAssignModal();
-        // Export assignment details
-        exportAssignment(user, license);
-        alert(`License assigned to ${user.name} successfully!`);
-    } else {
-        alert('No free licenses available for this license type!');
+    if (!user || !license) {
+        alert('Invalid user or license selection!');
+        return;
     }
+    
+    if (license.usedLicenses >= license.totalLicenses) {
+        alert('No free licenses available for this license type!');
+        return;
+    }
+    
+    // Increment used licenses
+    license.usedLicenses++;
+    saveLicenses();
     renderLicenses();
     updateStats();
-    checkExpirationAlerts();
-    closeModal();
-// removed stray closing brace here
+    closeAssignModal();
+    alert(`License assigned to ${user.name} successfully!`);
 }
 
 // Generate unique ID
@@ -797,47 +802,6 @@ function populateAssignmentDropdowns() {
         availableLicenses.map(l => 
             `<option value="${l.id}">${l.softwareName} (${l.totalSeats - l.usedSeats} available)</option>`
         ).join('');
-}
-
-function handleAssignLicense(e) {
-    e.preventDefault();
-    
-    const userId = document.getElementById('assign-user').value;
-    const licenseId = document.getElementById('assign-software').value;
-    const accessDate = document.getElementById('access-date').value;
-    
-    // Check if user already has this license
-    const existingAssignment = assignments.find(a => 
-        a.userId === userId && a.licenseId === licenseId
-    );
-    
-    if (existingAssignment) {
-        alert('This user already has this license assigned!');
-        return;
-    }
-    
-    const license = licenses.find(l => l.id === licenseId);
-    if (license && license.usedSeats < license.totalSeats) {
-        license.usedSeats++;
-        
-        const assignment = {
-            id: generateId(),
-            userId: userId,
-            licenseId: licenseId,
-            accessDate: accessDate
-        };
-        
-        assignments.push(assignment);
-        saveAssignments();
-        saveLicenses();
-        renderLicenses();
-        renderAssignments();
-        renderDashboard();
-        updateStats();
-        closeModal('assign-modal');
-    } else {
-        alert('No available seats for this license!');
-    }
 }
 
 function removeAssignment(id) {
