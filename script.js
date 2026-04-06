@@ -1082,12 +1082,18 @@ function switchTab(tabName) {
     // Hide all tab contents
     document.getElementById('licenses-content').classList.add('hidden');
     document.getElementById('devices-content').classList.add('hidden');
+    document.getElementById('checkin-content').classList.add('hidden');
+    document.getElementById('checkout-content').classList.add('hidden');
     
     // Remove active class from all tabs
     document.getElementById('licenses-tab').classList.remove('border-indigo-600', 'text-indigo-600');
     document.getElementById('licenses-tab').classList.add('border-transparent', 'text-gray-500');
     document.getElementById('devices-tab').classList.remove('border-indigo-600', 'text-indigo-600');
     document.getElementById('devices-tab').classList.add('border-transparent', 'text-gray-500');
+    document.getElementById('checkin-tab').classList.remove('border-indigo-600', 'text-indigo-600');
+    document.getElementById('checkin-tab').classList.add('border-transparent', 'text-gray-500');
+    document.getElementById('checkout-tab').classList.remove('border-indigo-600', 'text-indigo-600');
+    document.getElementById('checkout-tab').classList.add('border-transparent', 'text-gray-500');
     
     // Show selected tab and activate it
     if (tabName === 'licenses') {
@@ -1100,6 +1106,14 @@ function switchTab(tabName) {
         document.getElementById('devices-tab').classList.remove('border-transparent', 'text-gray-500');
         renderDevices();
         updateDeviceStats();
+    } else if (tabName === 'checkin') {
+        document.getElementById('checkin-content').classList.remove('hidden');
+        document.getElementById('checkin-tab').classList.add('border-indigo-600', 'text-indigo-600');
+        document.getElementById('checkin-tab').classList.remove('border-transparent', 'text-gray-500');
+    } else if (tabName === 'checkout') {
+        document.getElementById('checkout-content').classList.remove('hidden');
+        document.getElementById('checkout-tab').classList.add('border-indigo-600', 'text-indigo-600');
+        document.getElementById('checkout-tab').classList.remove('border-transparent', 'text-gray-500');
     }
 }
 
