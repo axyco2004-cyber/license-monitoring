@@ -92,6 +92,24 @@
 
         <!-- Licenses Tab Content -->
         <div id="licenses-content" class="tab-content">
+        <!-- Actions Section -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 mb-6">
+            <div class="flex justify-end">
+                <div class="dropdown">
+                    <button id="dropdown-btn" type="button" onclick="toggleDropdown(event)" class="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
+                        🎯 Assign License ▼
+                    </button>
+                    <div id="dropdown-content" class="dropdown-content">
+                        <button onclick="showAddUserModal()">👤 Add User</button>
+                        <button onclick="handleAddLicenseWithExport()">📄 Add License</button>
+                        <button onclick="handleAssignWithExport()">🔗 Assign to User</button>
+                        <button onclick="openExcelFile()">📂 Open Excel File</button>
+                        <button onclick="exportAllToExcel()">📊 Export All to Excel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div class="flex items-center gap-4">
@@ -135,18 +153,6 @@
         <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 mb-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">License Inventory</h2>
-                <div class="dropdown">
-                    <button id="dropdown-btn" type="button" onclick="toggleDropdown(event)" class="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
-                        🎯 Assign License ▼
-                    </button>
-                    <div id="dropdown-content" class="dropdown-content">
-                        <button onclick="showAddUserModal()">👤 Add User</button>
-                        <button onclick="handleAddLicenseWithExport()">📄 Add License</button>
-                        <button onclick="handleAssignWithExport()">🔗 Assign to User</button>
-                        <button onclick="openExcelFile()">📂 Open Excel File</button>
-                        <button onclick="exportAllToExcel()">📊 Export All to Excel</button>
-                    </div>
-                </div>
             </div>
             <div class="overflow-x-auto">
                 <table id="licenses-table" class="w-full">
