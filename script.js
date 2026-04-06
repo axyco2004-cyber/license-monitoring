@@ -50,15 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('license-form').addEventListener('submit', handleAddLicense);
     document.getElementById('assign-form').addEventListener('submit', handleAssignLicense);
     
-    // Close dropdown when clicking outside
-    window.addEventListener('click', function(event) {
-        if (!event.target.matches('#dropdown-btn')) {
-            const dropdown = document.getElementById('dropdown-content');
-            if (dropdown && dropdown.classList.contains('show')) {
-                dropdown.classList.remove('show');
-            }
-        }
-    });
+    // ...existing code...
 });
 
 // Toggle Dropdown Menu
@@ -255,19 +247,17 @@ function handleAssignLicense(e) {
         renderLicenses();
         updateStats();
         closeAssignModal();
-        
         // Export assignment details
         exportAssignment(user, license);
-        
         alert(`License assigned to ${user.name} successfully!`);
     } else {
         alert('No free licenses available for this license type!');
     }
-}
     renderLicenses();
     updateStats();
     checkExpirationAlerts();
     closeModal();
+// removed stray closing brace here
 }
 
 // Generate unique ID
@@ -545,55 +535,6 @@ function exportAssignment(user, license) {
     
     const fileName = `Assignment_${user.name}_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
-}
-
-                expirationDate: '2026-03-15'
-            }
-        ];
-        saveLicenses();
-    }
-    
-    if (users.length === 0) {
-        users = [
-            {
-                id: generateId(),
-                name: 'John Smith',
-                email: 'john.smith@company.com',
-                department: 'Engineering'
-            },
-            {
-                id: generateId(),
-                name: 'Sarah Johnson',
-                email: 'sarah.johnson@company.com',
-                department: 'Design'
-            },
-            {
-                id: generateId(),
-                name: 'Michael Brown',
-                email: 'michael.brown@company.com',
-                department: 'Marketing'
-            }
-        ];
-        saveUsers();
-    }
-    
-    if (assignments.length === 0) {
-        assignments = [
-            {
-                id: generateId(),
-                userId: users[0].id,
-                licenseId: licenses[0].id,
-                accessDate: '2026-01-15'
-            },
-            {
-                id: generateId(),
-                userId: users[1].id,
-                licenseId: licenses[1].id,
-                accessDate: '2026-02-01'
-            }
-        ];
-        saveAssignments();
-    }
 }
 
 // Tab Navigation
@@ -1099,3 +1040,245 @@ function saveUsers() {
 function saveAssignments() {
     localStorage.setItem('assignments', JSON.stringify(assignments));
 }
+
+// ===== DEVICES TAB FUNCTIONALITY =====
+
+// Device data storage
+let devices = JSON.parse(localStorage.getItem('devices')) || [];
+let scannerStream = null;
+
+// Tab switching function
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.getElementById('licenses-content').classList.add('hidden');
+    document.getElementById('devices-content').classList.add('hidden');
+    
+    // Remove active class from all tabs
+    document.getElementById('licenses-tab').classList.remove('border-indigo-600', 'text-indigo-600');
+    document.getElementById('licenses-tab').classList.add('border-transparent', 'text-gray-500');
+    document.getElementById('devices-tab').classList.remove('border-indigo-600', 'text-indigo-600');
+    document.getElementById('devices-tab').classList.add('border-transparent', 'text-gray-500');
+    
+    // Show selected tab and activate it
+    if (tabName === 'licenses') {
+        document.getElementById('licenses-content').classList.remove('hidden');
+        document.getElementById('licenses-tab').classList.add('border-indigo-600', 'text-indigo-600');
+        document.getElementById('licenses-tab').classList.remove('border-transparent', 'text-gray-500');
+    } else if (tabName === 'devices') {
+        document.getElementById('devices-content').classList.remove('hidden');
+        document.getElementById('devices-tab').classList.add('border-indigo-600', 'text-indigo-600');
+        document.getElementById('devices-tab').classList.remove('border-transparent', 'text-gray-500');
+        renderDevices();
+        updateDeviceStats();
+    }
+}
+
+// Show/Hide Device Modal
+function showAddDeviceModal() {
+    populateDeviceUserDropdown();
+    document.getElementById('add-device-modal').classList.remove('hidden');
+}
+
+function closeDeviceModal() {
+    document.getElementById('add-device-modal').classList.add('hidden');
+    document.getElementById('device-form').reset();
+}
+
+// Populate user dropdown in device form
+function populateDeviceUserDropdown() {
+    const select = document.getElementById('device-assigned-user');
+    select.innerHTML = '<option value="">-- Not Assigned --</option>';
+    
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.name} (${user.email})`;
+        select.appendChild(option);
+    });
+}
+
+// Handle Device Form Submission
+document.addEventListener('DOMContentLoaded', function() {
+    const deviceForm = document.getElementById('device-form');
+    if (deviceForm) {
+        deviceForm.addEventListener('submit', handleAddDevice);
+    }
+});
+
+function handleAddDevice(e) {
+    e.preventDefault();
+    
+    const serialNumber = document.getElementById('device-serial').value;
+    
+    // Check if serial number already exists
+    if (devices.some(d => d.serialNumber === serialNumber)) {
+        alert('A device with this serial number already exists!');
+        return;
+    }
+    
+    const userId = document.getElementById('device-assigned-user').value;
+    const user = userId ? users.find(u => u.id === userId) : null;
+    
+    const device = {
+        id: generateId(),
+        serialNumber: serialNumber,
+        name: document.getElementById('device-name').value,
+        type: document.getElementById('device-type').value,
+        assignedTo: user ? user.name : 'Unassigned',
+        assignedUserId: userId || null,
+        registrationDate: new Date().toISOString().split('T')[0],
+        status: document.getElementById('device-status').value,
+        notes: document.getElementById('device-notes').value || ''
+    };
+    
+    devices.push(device);
+    saveDevices();
+    renderDevices();
+    updateDeviceStats();
+    closeDeviceModal();
+    alert('Device registered successfully!');
+}
+
+// Save devices to localStorage
+function saveDevices() {
+    localStorage.setItem('devices', JSON.stringify(devices));
+}
+
+// Render devices table
+function renderDevices() {
+    const tbody = document.getElementById('devices-tbody');
+    
+    if (devices.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-400 text-lg">No devices registered. Click "Register Device" to get started.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = devices.map(device => {
+        const statusColors = {
+            'Active': 'bg-green-100 text-green-800',
+            'Inactive': 'bg-red-100 text-red-800',
+            'Maintenance': 'bg-yellow-100 text-yellow-800',
+            'Retired': 'bg-gray-100 text-gray-800'
+        };
+        
+        const statusClass = statusColors[device.status] || 'bg-gray-100 text-gray-800';
+        
+        return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm text-indigo-600">${device.serialNumber}</code></td>
+                <td class="px-6 py-4 text-gray-800 font-medium">${device.name}</td>
+                <td class="px-6 py-4 text-gray-600">${device.type}</td>
+                <td class="px-6 py-4 text-gray-600">${device.assignedTo}</td>
+                <td class="px-6 py-4 text-gray-600">${formatDate(device.registrationDate)}</td>
+                <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-sm font-semibold ${statusClass}">${device.status}</span></td>
+                <td class="px-6 py-4">
+                    <button onclick="viewDeviceDetails('${device.id}')" class="text-blue-600 hover:text-blue-800 font-semibold mr-3">View</button>
+                    <button onclick="deleteDevice('${device.id}')" class="text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Update device statistics
+function updateDeviceStats() {
+    const total = devices.length;
+    const active = devices.filter(d => d.status === 'Active').length;
+    const inactive = devices.filter(d => d.status !== 'Active').length;
+    
+    document.getElementById('total-devices').textContent = total;
+    document.getElementById('active-devices').textContent = active;
+    document.getElementById('inactive-devices').textContent = inactive;
+}
+
+// View device details
+function viewDeviceDetails(id) {
+    const device = devices.find(d => d.id === id);
+    if (!device) return;
+    
+    let details = `
+📱 Device Details:
+━━━━━━━━━━━━━━━━━━━━━
+Serial Number: ${device.serialNumber}
+Device Name: ${device.name}
+Type: ${device.type}
+Assigned To: ${device.assignedTo}
+Registration Date: ${formatDate(device.registrationDate)}
+Status: ${device.status}
+${device.notes ? 'Notes: ' + device.notes : ''}
+    `;
+    
+    alert(details);
+}
+
+// Delete device
+function deleteDevice(id) {
+    if (confirm('Are you sure you want to delete this device?')) {
+        devices = devices.filter(d => d.id !== id);
+        saveDevices();
+        renderDevices();
+        updateDeviceStats();
+        alert('Device deleted successfully!');
+    }
+}
+
+// ===== BARCODE/QR CODE SCANNER FUNCTIONALITY =====
+
+function scanSerialNumber() {
+    // Show scanner modal
+    document.getElementById('scanner-modal').classList.remove('hidden');
+    startScanner();
+}
+
+function closeScannerModal() {
+    stopScanner();
+    document.getElementById('scanner-modal').classList.add('hidden');
+}
+
+function startScanner() {
+    const video = document.getElementById('scanner-video');
+    
+    // Request camera access
+    navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            facingMode: 'environment' // Use back camera on mobile
+        } 
+    })
+    .then(stream => {
+        scannerStream = stream;
+        video.srcObject = stream;
+        video.play();
+        
+        // Start detecting codes (simple implementation - for production use a library like QuaggaJS or ZXing)
+        setTimeout(() => {
+            detectCode();
+        }, 1000);
+    })
+    .catch(err => {
+        console.error('Camera access error:', err);
+        alert('Could not access camera. Please enter the serial number manually or check camera permissions.');
+        closeScannerModal();
+    });
+}
+
+function stopScanner() {
+    if (scannerStream) {
+        scannerStream.getTracks().forEach(track => track.stop());
+        scannerStream = null;
+    }
+}
+
+function detectCode() {
+    // This is a simplified version - for production, use a proper barcode scanning library
+    // For now, we'll show a prompt to enter the code manually
+    const code = prompt('Camera active. For this demo, please enter the serial number:');
+    
+    if (code) {
+        document.getElementById('device-serial').value = code;
+        closeScannerModal();
+        alert('Serial number captured: ' + code);
+    } else {
+        closeScannerModal();
+    }
+}
+
