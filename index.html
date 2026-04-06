@@ -270,10 +270,29 @@
             <div class="bg-white rounded-xl shadow-lg p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">📤 Check Out</h2>
+                    <div class="flex gap-3">
+                        <button onclick="showCheckOutModal()" class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                            ➕ Check Out Device
+                        </button>
+                        <button onclick="exportCheckOutsToExcel()" class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                            📊 Export to Excel
+                        </button>
+                    </div>
                 </div>
-                <div class="text-center py-12 text-gray-500">
-                    <div class="text-6xl mb-4">📤</div>
-                    <p class="text-lg">Check Out functionality coming soon...</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gradient-to-r from-orange-50 to-red-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Serial Number</th>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Date & Time</th>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Deliver Person</th>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">IT Receiver</th>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="checkout-tbody" class="divide-y divide-gray-200">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -627,6 +646,99 @@
             </div>
             <p class="text-center text-gray-600 text-sm">Position the barcode/QR code within the camera view</p>
             <button onclick="closeCheckInScannerModal()" class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-all duration-300">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Check Out Modal -->
+    <div id="checkout-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-8 transform transition-all">
+            <div class="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4">
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">📤 Check Out Device</h2>
+                <button onclick="closeCheckOutModal()" class="text-gray-400 hover:text-gray-600 text-3xl font-bold transition-colors">&times;</button>
+            </div>
+            <form id="checkout-form" onsubmit="handleCheckOut(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Serial Number *</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="checkout-serial" required oninput="searchDeviceBySerialCheckOut()" class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all outline-none" placeholder="Enter or scan serial number">
+                        <button type="button" onclick="scanCheckOutSerial()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300">
+                            📷 Scan
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Device Info Panel -->
+                <div id="checkout-device-info" class="hidden bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-4 space-y-2">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-blue-900 flex items-center gap-2">
+                            <span class="text-xl">✅</span> Device Found
+                        </h3>
+                        <span id="checkout-device-info-source" class="text-xs bg-blue-600 text-white px-2 py-1 rounded-full font-semibold"></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                            <span class="text-gray-600 font-semibold">Device Name:</span>
+                            <p id="checkout-device-info-name" class="text-gray-900 font-bold"></p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 font-semibold">Type:</span>
+                            <p id="checkout-device-info-type" class="text-gray-900 font-bold"></p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 font-semibold">Assigned To:</span>
+                            <p id="checkout-device-info-assigned" class="text-gray-900 font-bold"></p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 font-semibold">Status:</span>
+                            <p id="checkout-device-info-status" class="text-gray-900 font-bold"></p>
+                        </div>
+                    </div>
+                    <div id="checkout-device-info-notes" class="text-xs text-gray-700 bg-white rounded p-2 mt-2"></div>
+                </div>
+                
+                <!-- Device Not Found Panel -->
+                <div id="checkout-device-notfound" class="hidden bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-lg p-4">
+                    <div class="flex items-center gap-2 text-yellow-900">
+                        <span class="text-xl">⚠️</span>
+                        <div>
+                            <p class="font-bold">Device Not Found</p>
+                            <p class="text-sm text-yellow-700">This serial number is not registered in any database. You can still check it out.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Date & Time *</label>
+                    <input type="datetime-local" id="checkout-datetime" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deliver Person *</label>
+                    <input type="text" id="checkout-deliver" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all outline-none" placeholder="Name of person delivering">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">IT Receiver Person *</label>
+                    <input type="text" id="checkout-receiver" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all outline-none" placeholder="Name of IT person receiving">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                    ✅ Save Check Out
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Check Out Scanner Modal -->
+    <div id="checkout-scanner-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Scan Serial Number</h2>
+                <button onclick="closeCheckOutScannerModal()" class="text-gray-400 hover:text-gray-600 text-3xl font-bold transition-colors">&times;</button>
+            </div>
+            <div id="checkout-scanner-container" class="relative bg-black rounded-lg overflow-hidden mb-4" style="min-height: 300px;">
+                <video id="checkout-scanner-video" class="w-full" autoplay playsinline></video>
+                <canvas id="checkout-scanner-canvas" class="hidden"></canvas>
+            </div>
+            <p class="text-center text-gray-600 text-sm">Position the barcode/QR code within the camera view</p>
+            <button onclick="closeCheckOutScannerModal()" class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-all duration-300">Cancel</button>
         </div>
     </div>
 

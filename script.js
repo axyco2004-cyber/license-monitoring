@@ -1115,6 +1115,7 @@ function switchTab(tabName) {
         document.getElementById('checkout-content').classList.remove('hidden');
         document.getElementById('checkout-tab').classList.add('border-indigo-600', 'text-indigo-600');
         document.getElementById('checkout-tab').classList.remove('border-transparent', 'text-gray-500');
+        renderCheckOuts();
     }
 }
 
@@ -1656,6 +1657,290 @@ function exportCheckInsToExcel() {
     XLSX.utils.book_append_sheet(wb, ws, 'Checked In');
     
     const fileName = `checked_in_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
+
+// ===== CHECK OUT FUNCTIONALITY =====
+
+// Check-out data storage
+let checkOuts = JSON.parse(localStorage.getItem('checkOuts')) || [];
+let checkOutScannerStream = null;
+
+// Show Check Out modal
+function showCheckOutModal() {
+    document.getElementById('checkout-modal').classList.remove('hidden');
+    
+    // Set current date and time
+    const now = new Date();
+    const dateTimeLocal = now.toISOString().slice(0, 16);
+    document.getElementById('checkout-datetime').value = dateTimeLocal;
+    
+    document.getElementById('checkout-form').reset();
+    document.getElementById('checkout-datetime').value = dateTimeLocal;
+    
+    // Hide device info panels
+    document.getElementById('checkout-device-info').classList.add('hidden');
+    document.getElementById('checkout-device-notfound').classList.add('hidden');
+}
+
+// Close Check Out modal
+function closeCheckOutModal() {
+    document.getElementById('checkout-modal').classList.add('hidden');
+}
+
+// Handle Check Out form submission
+function handleCheckOut(e) {
+    e.preventDefault();
+    
+    const serialNumber = document.getElementById('checkout-serial').value;
+    
+    // Find device info if available
+    const device = devices.find(d => d.serialNumber.toLowerCase() === serialNumber.toLowerCase());
+    
+    const checkOut = {
+        id: generateId(),
+        serialNumber: serialNumber,
+        dateTime: document.getElementById('checkout-datetime').value,
+        deliverPerson: document.getElementById('checkout-deliver').value,
+        receiverPerson: document.getElementById('checkout-receiver').value,
+        timestamp: new Date().toISOString(),
+        // Additional device info if found
+        deviceName: device ? device.name : 'N/A',
+        deviceType: device ? device.type : 'N/A',
+        deviceStatus: device ? device.status : 'Unknown'
+    };
+    
+    checkOuts.push(checkOut);
+    saveCheckOuts();
+    renderCheckOuts();
+    closeCheckOutModal();
+    alert('Device checked out successfully!' + (device ? ` (${device.name})` : ''));
+}
+
+// Save check-outs to localStorage
+function saveCheckOuts() {
+    localStorage.setItem('checkOuts', JSON.stringify(checkOuts));
+}
+
+// Render check-outs table
+function renderCheckOuts() {
+    const tbody = document.getElementById('checkout-tbody');
+    
+    if (checkOuts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 text-lg">No check-outs recorded. Click "Check Out Device" to get started.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = checkOuts.map(checkOut => {
+        const dateTime = new Date(checkOut.dateTime);
+        const formattedDateTime = dateTime.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        return `
+            <tr class="hover:bg-orange-50 transition-colors">
+                <td class="px-6 py-4"><code class="bg-orange-100 px-2 py-1 rounded text-sm text-orange-700 font-semibold">${checkOut.serialNumber}</code></td>
+                <td class="px-6 py-4 text-gray-800">${formattedDateTime}</td>
+                <td class="px-6 py-4 text-gray-800 font-medium">${checkOut.deliverPerson}</td>
+                <td class="px-6 py-4 text-gray-800 font-medium">${checkOut.receiverPerson}</td>
+                <td class="px-6 py-4">
+                    <button onclick="deleteCheckOut('${checkOut.id}')" class="text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Delete check-out
+function deleteCheckOut(id) {
+    if (confirm('Are you sure you want to delete this check-out record?')) {
+        checkOuts = checkOuts.filter(c => c.id !== id);
+        saveCheckOuts();
+        renderCheckOuts();
+    }
+}
+
+// Scanner for Check Out
+function scanCheckOutSerial() {
+    document.getElementById('checkout-scanner-modal').classList.remove('hidden');
+    startCheckOutScanner();
+}
+
+function closeCheckOutScannerModal() {
+    stopCheckOutScanner();
+    document.getElementById('checkout-scanner-modal').classList.add('hidden');
+}
+
+function startCheckOutScanner() {
+    const video = document.getElementById('checkout-scanner-video');
+    
+    navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            facingMode: 'environment'
+        } 
+    })
+    .then(stream => {
+        checkOutScannerStream = stream;
+        video.srcObject = stream;
+        video.play();
+        
+        setTimeout(() => {
+            detectCheckOutCode();
+        }, 1000);
+    })
+    .catch(err => {
+        console.error('Camera access error:', err);
+        alert('Could not access camera. Please enter the serial number manually or check camera permissions.');
+        closeCheckOutScannerModal();
+    });
+}
+
+function stopCheckOutScanner() {
+    if (checkOutScannerStream) {
+        checkOutScannerStream.getTracks().forEach(track => track.stop());
+        checkOutScannerStream = null;
+    }
+}
+
+function detectCheckOutCode() {
+    const code = prompt('Camera active. For this demo, please enter the serial number:');
+    
+    if (code) {
+        document.getElementById('checkout-serial').value = code;
+        closeCheckOutScannerModal();
+        searchDeviceBySerialCheckOut(); // Auto-search after scanning
+        alert('Serial number captured: ' + code);
+    } else {
+        closeCheckOutScannerModal();
+    }
+}
+
+// Auto-search device by serial number for Check Out
+function searchDeviceBySerialCheckOut() {
+    const serialNumber = document.getElementById('checkout-serial').value.trim();
+    
+    // Hide all info panels first
+    document.getElementById('checkout-device-info').classList.add('hidden');
+    document.getElementById('checkout-device-notfound').classList.add('hidden');
+    
+    // If serial number is empty, don't search
+    if (!serialNumber) {
+        return;
+    }
+    
+    // Search in devices database
+    const device = devices.find(d => d.serialNumber.toLowerCase() === serialNumber.toLowerCase());
+    
+    if (device) {
+        // Device found - display info
+        document.getElementById('checkout-device-info').classList.remove('hidden');
+        document.getElementById('checkout-device-info-source').textContent = 'DEVICES DB';
+        document.getElementById('checkout-device-info-name').textContent = device.name;
+        document.getElementById('checkout-device-info-type').textContent = device.type;
+        document.getElementById('checkout-device-info-assigned').textContent = device.assignedTo;
+        document.getElementById('checkout-device-info-status').textContent = device.status;
+        
+        if (device.notes) {
+            document.getElementById('checkout-device-info-notes').textContent = '📝 Notes: ' + device.notes;
+            document.getElementById('checkout-device-info-notes').classList.remove('hidden');
+        } else {
+            document.getElementById('checkout-device-info-notes').classList.add('hidden');
+        }
+        
+        return;
+    }
+    
+    // Search in assignments database
+    const assignment = assignments.find(a => {
+        const user = users.find(u => u.id === a.userId);
+        const license = licenses.find(l => l.id === a.licenseId);
+        return user && user.name.toLowerCase().includes(serialNumber.toLowerCase());
+    });
+    
+    if (assignment) {
+        const user = users.find(u => u.id === assignment.userId);
+        const license = licenses.find(l => l.id === assignment.licenseId);
+        
+        document.getElementById('checkout-device-info').classList.remove('hidden');
+        document.getElementById('checkout-device-info-source').textContent = 'ASSIGNMENTS DB';
+        document.getElementById('checkout-device-info-name').textContent = license ? license.softwareName : 'N/A';
+        document.getElementById('checkout-device-info-type').textContent = 'License Assignment';
+        document.getElementById('checkout-device-info-assigned').textContent = user ? user.name : 'N/A';
+        document.getElementById('checkout-device-info-status').textContent = 'Assigned';
+        document.getElementById('checkout-device-info-notes').textContent = '📝 Found in license assignments';
+        document.getElementById('checkout-device-info-notes').classList.remove('hidden');
+        
+        return;
+    }
+    
+    // Check if serial number appears in any previous check-outs
+    const previousCheckOut = checkOuts.find(c => c.serialNumber.toLowerCase() === serialNumber.toLowerCase());
+    
+    if (previousCheckOut) {
+        const dateTime = new Date(previousCheckOut.dateTime);
+        document.getElementById('checkout-device-info').classList.remove('hidden');
+        document.getElementById('checkout-device-info-source').textContent = 'CHECK-OUT HISTORY';
+        document.getElementById('checkout-device-info-name').textContent = serialNumber;
+        document.getElementById('checkout-device-info-type').textContent = 'Previous Check-Out';
+        document.getElementById('checkout-device-info-assigned').textContent = previousCheckOut.deliverPerson;
+        document.getElementById('checkout-device-info-status').textContent = 'Previously Checked Out';
+        document.getElementById('checkout-device-info-notes').textContent = `📅 Last check-out: ${dateTime.toLocaleDateString()} by ${previousCheckOut.receiverPerson}`;
+        document.getElementById('checkout-device-info-notes').classList.remove('hidden');
+        
+        return;
+    }
+    
+    // Check in check-ins database
+    const previousCheckIn = checkIns.find(c => c.serialNumber.toLowerCase() === serialNumber.toLowerCase());
+    
+    if (previousCheckIn) {
+        const dateTime = new Date(previousCheckIn.dateTime);
+        document.getElementById('checkout-device-info').classList.remove('hidden');
+        document.getElementById('checkout-device-info-source').textContent = 'CHECK-IN HISTORY';
+        document.getElementById('checkout-device-info-name').textContent = serialNumber;
+        document.getElementById('checkout-device-info-type').textContent = 'Previously Checked In';
+        document.getElementById('checkout-device-info-assigned').textContent = previousCheckIn.deliverPerson;
+        document.getElementById('checkout-device-info-status').textContent = 'Checked In';
+        document.getElementById('checkout-device-info-notes').textContent = `📅 Last check-in: ${dateTime.toLocaleDateString()} by ${previousCheckIn.receiverPerson}`;
+        document.getElementById('checkout-device-info-notes').classList.remove('hidden');
+        
+        return;
+    }
+    
+    // Device not found in any database
+    document.getElementById('checkout-device-notfound').classList.remove('hidden');
+}
+
+// Export check-outs to Excel
+function exportCheckOutsToExcel() {
+    if (checkOuts.length === 0) {
+        alert('No check-out records to export.');
+        return;
+    }
+    
+    const data = checkOuts.map(checkOut => {
+        const dateTime = new Date(checkOut.dateTime);
+        return {
+            'Serial Number': checkOut.serialNumber,
+            'Device Name': checkOut.deviceName || 'N/A',
+            'Device Type': checkOut.deviceType || 'N/A',
+            'Date': dateTime.toLocaleDateString('en-US'),
+            'Time': dateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            'Deliver Person': checkOut.deliverPerson,
+            'IT Receiver Person': checkOut.receiverPerson,
+            'Device Status': checkOut.deviceStatus || 'Unknown'
+        };
+    });
+    
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Checked Out');
+    
+    const fileName = `checked_out_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
 }
 
