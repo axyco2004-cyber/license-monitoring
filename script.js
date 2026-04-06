@@ -298,11 +298,63 @@ function renderLicenses() {
                 <td class="px-6 py-4"><strong class="text-green-600">${freeLicenses}</strong> <span class="text-gray-400">of ${license.totalLicenses}</span></td>
                 <td class="px-6 py-4"><span class="${status.class}">${status.text}</span></td>
                 <td class="px-6 py-4">
-                    <button onclick="deleteLicense('${license.id}')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-lg">🗑️ Delete</button>
+                    <button onclick="editLicense('${license.id}')" class="text-green-600 hover:text-green-800 font-semibold mr-3">Edit</button>
+                    <button onclick="deleteLicense('${license.id}')" class="text-red-600 hover:text-red-800 font-semibold">Delete</button>
                 </td>
             </tr>
         `;
     }).join('');
+}
+
+// Edit license
+function editLicense(id) {
+    const license = licenses.find(l => l.id === id);
+    if (!license) return;
+    
+    // Populate the edit modal with license data
+    document.getElementById('edit-license-id').value = license.id;
+    document.getElementById('edit-user-name').value = license.userName;
+    document.getElementById('edit-license-key').value = license.licenseKey;
+    document.getElementById('edit-assignment-date').value = license.assignmentDate;
+    document.getElementById('edit-expiration-date').value = license.expirationDate;
+    document.getElementById('edit-total-licenses').value = license.totalLicenses;
+    document.getElementById('edit-used-licenses').value = license.usedLicenses;
+    
+    // Show edit modal
+    document.getElementById('edit-license-modal').classList.remove('hidden');
+}
+
+// Save edited license
+function saveEditedLicense(e) {
+    e.preventDefault();
+    
+    const licenseId = document.getElementById('edit-license-id').value;
+    const license = licenses.find(l => l.id === licenseId);
+    
+    if (!license) {
+        alert('License not found!');
+        return;
+    }
+    
+    // Update license properties
+    license.userName = document.getElementById('edit-user-name').value;
+    license.licenseKey = document.getElementById('edit-license-key').value;
+    license.assignmentDate = document.getElementById('edit-assignment-date').value;
+    license.expirationDate = document.getElementById('edit-expiration-date').value;
+    license.totalLicenses = parseInt(document.getElementById('edit-total-licenses').value);
+    license.usedLicenses = parseInt(document.getElementById('edit-used-licenses').value);
+    
+    saveLicenses();
+    renderLicenses();
+    updateStats();
+    checkExpirationAlerts();
+    closeEditLicenseModal();
+    alert('License updated successfully!');
+}
+
+// Close edit license modal
+function closeEditLicenseModal() {
+    document.getElementById('edit-license-modal').classList.add('hidden');
 }
 
 // Calculate days remaining
