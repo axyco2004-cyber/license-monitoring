@@ -860,6 +860,117 @@ function removeAssignment(id) {
     }
 }
 
+// Edit assignment
+function editAssignment(id) {
+    const assignment = assignments.find(a => a.id === id);
+    if (!assignment) return;
+    
+    // Populate the edit modal with assignment data
+    document.getElementById('edit-assignment-id').value = assignment.id;
+    document.getElementById('edit-assign-user').value = assignment.userId;
+    document.getElementById('edit-assign-license').value = assignment.licenseId;
+    document.getElementById('edit-access-date').value = assignment.accessDate;
+    
+    // Populate dropdowns
+    populateEditAssignmentDropdowns();
+    
+    // Show edit modal
+    document.getElementById('edit-assignment-modal').classList.remove('hidden');
+}
+
+// Populate user and license dropdowns in edit assignment form
+function populateEditAssignmentDropdowns() {
+    // Users dropdown
+    const userSelect = document.getElementById('edit-assign-user');
+    userSelect.innerHTML = '<option value="">-- Select User --</option>';
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.name} (${user.email})`;
+        userSelect.appendChild(option);
+    });
+    
+    // Licenses dropdown
+    const licenseSelect = document.getElementById('edit-assign-license');
+    licenseSelect.innerHTML = '<option value="">-- Select License --</option>';
+    licenses.forEach(license => {
+        const option = document.createElement('option');
+        option.value = license.id;
+        const available = license.totalSeats - license.usedSeats;
+        option.textContent = `${license.softwareName || license.licenseKey} (${available} available)`;
+        licenseSelect.appendChild(option);
+    });
+}
+
+// Save edited assignment
+function saveEditedAssignment(e) {
+    e.preventDefault();
+    
+    const assignmentId = document.getElementById('edit-assignment-id').value;
+    const assignment = assignments.find(a => a.id === assignmentId);
+    
+    if (!assignment) {
+        alert('Assignment not found!');
+        return;
+    }
+    
+    const newUserId = document.getElementById('edit-assign-user').value;
+    const newLicenseId = document.getElementById('edit-assign-license').value;
+    const newAccessDate = document.getElementById('edit-access-date').value;
+    
+    // Check if this creates a duplicate assignment
+    const duplicate = assignments.find(a => 
+        a.id !== assignmentId && 
+        a.userId === newUserId && 
+        a.licenseId === newLicenseId
+    );
+    
+    if (duplicate) {
+        alert('This user already has this license assigned!');
+        return;
+    }
+    
+    // Handle license seat changes if license changed
+    if (assignment.licenseId !== newLicenseId) {
+        // Free up seat from old license
+        const oldLicense = licenses.find(l => l.id === assignment.licenseId);
+        if (oldLicense) {
+            oldLicense.usedSeats--;
+        }
+        
+        // Take seat from new license
+        const newLicense = licenses.find(l => l.id === newLicenseId);
+        if (newLicense) {
+            if (newLicense.usedSeats >= newLicense.totalSeats) {
+                alert('No available seats for this license!');
+                // Restore old license seat
+                if (oldLicense) oldLicense.usedSeats++;
+                return;
+            }
+            newLicense.usedSeats++;
+        }
+    }
+    
+    // Update assignment properties
+    assignment.userId = newUserId;
+    assignment.licenseId = newLicenseId;
+    assignment.accessDate = newAccessDate;
+    
+    saveAssignments();
+    saveLicenses();
+    renderAssignments();
+    renderLicenses();
+    renderDashboard();
+    updateStats();
+    closeEditAssignmentModal();
+    alert('Assignment updated successfully!');
+}
+
+// Close edit assignment modal
+function closeEditAssignmentModal() {
+    document.getElementById('edit-assignment-modal').classList.add('hidden');
+}
+
 function renderAssignments() {
     const tbody = document.getElementById('assignments-tbody');
     
@@ -895,7 +1006,8 @@ function renderAssignments() {
                 <td>${daysRemaining >= 0 ? daysRemaining + ' days' : 'Expired'}</td>
                 <td><span class="status-badge ${statusClass}">${status}</span></td>
                 <td>
-                    <button class="btn-sm btn-delete" onclick="removeAssignment('${assignment.id}')">Remove</button>
+                    <button class="text-green-600 hover:text-green-800 font-semibold mr-3" onclick="editAssignment('${assignment.id}')">Edit</button>
+                    <button class="text-red-600 hover:text-red-800 font-semibold" onclick="removeAssignment('${assignment.id}')">Delete</button>
                 </td>
             </tr>
         `;
