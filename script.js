@@ -1408,6 +1408,10 @@ function showCheckInModal() {
     
     document.getElementById('checkin-form').reset();
     document.getElementById('checkin-datetime').value = dateTimeLocal;
+    
+    // Hide device info panels
+    document.getElementById('checkin-device-info').classList.add('hidden');
+    document.getElementById('checkin-device-notfound').classList.add('hidden');
 }
 
 // Close Check In modal
@@ -1419,20 +1423,29 @@ function closeCheckInModal() {
 function handleCheckIn(e) {
     e.preventDefault();
     
+    const serialNumber = document.getElementById('checkin-serial').value;
+    
+    // Find device info if available
+    const device = devices.find(d => d.serialNumber.toLowerCase() === serialNumber.toLowerCase());
+    
     const checkIn = {
         id: generateId(),
-        serialNumber: document.getElementById('checkin-serial').value,
+        serialNumber: serialNumber,
         dateTime: document.getElementById('checkin-datetime').value,
         deliverPerson: document.getElementById('checkin-deliver').value,
         receiverPerson: document.getElementById('checkin-receiver').value,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        // Additional device info if found
+        deviceName: device ? device.name : 'N/A',
+        deviceType: device ? device.type : 'N/A',
+        deviceStatus: device ? device.status : 'Unknown'
     };
     
     checkIns.push(checkIn);
     saveCheckIns();
     renderCheckIns();
     closeCheckInModal();
-    alert('Device checked in successfully!');
+    alert('Device checked in successfully!' + (device ? ` (${device.name})` : ''));
 }
 
 // Save check-ins to localStorage
@@ -1530,10 +1543,91 @@ function detectCheckInCode() {
     if (code) {
         document.getElementById('checkin-serial').value = code;
         closeCheckInScannerModal();
+        searchDeviceBySerial(); // Auto-search after scanning
         alert('Serial number captured: ' + code);
     } else {
         closeCheckInScannerModal();
     }
+}
+
+// Auto-search device by serial number
+function searchDeviceBySerial() {
+    const serialNumber = document.getElementById('checkin-serial').value.trim();
+    
+    // Hide all info panels first
+    document.getElementById('checkin-device-info').classList.add('hidden');
+    document.getElementById('checkin-device-notfound').classList.add('hidden');
+    
+    // If serial number is empty, don't search
+    if (!serialNumber) {
+        return;
+    }
+    
+    // Search in devices database
+    const device = devices.find(d => d.serialNumber.toLowerCase() === serialNumber.toLowerCase());
+    
+    if (device) {
+        // Device found - display info
+        document.getElementById('checkin-device-info').classList.remove('hidden');
+        document.getElementById('device-info-source').textContent = 'DEVICES DB';
+        document.getElementById('device-info-name').textContent = device.name;
+        document.getElementById('device-info-type').textContent = device.type;
+        document.getElementById('device-info-assigned').textContent = device.assignedTo;
+        document.getElementById('device-info-status').textContent = device.status;
+        
+        if (device.notes) {
+            document.getElementById('device-info-notes').textContent = '📝 Notes: ' + device.notes;
+            document.getElementById('device-info-notes').classList.remove('hidden');
+        } else {
+            document.getElementById('device-info-notes').classList.add('hidden');
+        }
+        
+        return;
+    }
+    
+    // Search in assignments database (check if serial matches any assignment data)
+    const assignment = assignments.find(a => {
+        const user = users.find(u => u.id === a.userId);
+        const license = licenses.find(l => l.id === a.licenseId);
+        // Check if serial number might be in assignment notes or related to user/license
+        return user && user.name.toLowerCase().includes(serialNumber.toLowerCase());
+    });
+    
+    if (assignment) {
+        const user = users.find(u => u.id === assignment.userId);
+        const license = licenses.find(l => l.id === assignment.licenseId);
+        
+        document.getElementById('checkin-device-info').classList.remove('hidden');
+        document.getElementById('device-info-source').textContent = 'ASSIGNMENTS DB';
+        document.getElementById('device-info-name').textContent = license ? license.softwareName : 'N/A';
+        document.getElementById('device-info-type').textContent = 'License Assignment';
+        document.getElementById('device-info-assigned').textContent = user ? user.name : 'N/A';
+        document.getElementById('device-info-status').textContent = 'Assigned';
+        document.getElementById('device-info-notes').textContent = '📝 Found in license assignments';
+        document.getElementById('device-info-notes').classList.remove('hidden');
+        
+        return;
+    }
+    
+    // Check if serial number appears in any previous check-ins
+    const previousCheckIn = checkIns.find(c => c.serialNumber.toLowerCase() === serialNumber.toLowerCase());
+    
+    if (previousCheckIn) {
+        const dateTime = new Date(previousCheckIn.dateTime);
+        document.getElementById('checkin-device-info').classList.remove('hidden');
+        document.getElementById('device-info-source').textContent = 'CHECK-IN HISTORY';
+        document.getElementById('device-info-name').textContent = serialNumber;
+        document.getElementById('device-info-type').textContent = 'Previous Check-In';
+        document.getElementById('device-info-assigned').textContent = previousCheckIn.deliverPerson;
+        document.getElementById('device-info-status').textContent = 'Previously Checked In';
+        document.getElementById('device-info-notes').textContent = `📅 Last check-in: ${dateTime.toLocaleDateString()} by ${previousCheckIn.receiverPerson}`;
+        document.getElementById('device-info-notes').classList.remove('hidden');
+        
+        return;
+    }
+    
+    // Device not found in any database
+    document.getElementById('checkin-device-notfound').classList.remove('hidden');
 }
 
 // Export check-ins to Excel
@@ -1547,10 +1641,13 @@ function exportCheckInsToExcel() {
         const dateTime = new Date(checkIn.dateTime);
         return {
             'Serial Number': checkIn.serialNumber,
+            'Device Name': checkIn.deviceName || 'N/A',
+            'Device Type': checkIn.deviceType || 'N/A',
             'Date': dateTime.toLocaleDateString('en-US'),
             'Time': dateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
             'Deliver Person': checkIn.deliverPerson,
-            'IT Receiver Person': checkIn.receiverPerson
+            'IT Receiver Person': checkIn.receiverPerson,
+            'Device Status': checkIn.deviceStatus || 'Unknown'
         };
     });
     
