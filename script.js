@@ -9,27 +9,31 @@ function closeUserModal() {
     document.getElementById('user-form').reset();
 }
 
-// Handle Add User
-document.addEventListener('DOMContentLoaded', function() {
-    const userForm = document.getElementById('user-form');
-    if (userForm) {
-        userForm.addEventListener('submit', handleAddUser);
-    }
-});
-
 function handleAddUser(e) {
     e.preventDefault();
+    
+    const userName = document.getElementById('new-user-name').value;
+    const userEmail = document.getElementById('user-email').value;
+    const userDept = document.getElementById('user-department').value;
+    
+    if (!userName || !userEmail) {
+        alert('Please fill in user name and email!');
+        return;
+    }
+    
     const user = {
         id: generateId(),
-        name: document.getElementById('new-user-name').value,
-        email: document.getElementById('user-email').value,
-        department: document.getElementById('user-department').value || 'N/A'
+        name: userName,
+        email: userEmail,
+        department: userDept || 'N/A'
     };
+    
     users.push(user);
     saveUsers();
     closeUserModal();
     alert('User added successfully!');
 }
+
 // License Monitoring System
 let licenses = JSON.parse(localStorage.getItem('licenses')) || [];
 let users = JSON.parse(localStorage.getItem('users')) || [];
@@ -49,6 +53,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submissions
     document.getElementById('license-form').addEventListener('submit', handleAddLicense);
     document.getElementById('assign-form').addEventListener('submit', handleAssignLicense);
+    document.getElementById('user-form').addEventListener('submit', handleAddUser);
+    document.getElementById('device-form').addEventListener('submit', handleAddDevice);
+    
+    // Dropdown click prevention
+    const dropdownContent = document.getElementById('dropdown-content');
+    if (dropdownContent) {
+        dropdownContent.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    }
     
     // ...existing code...
 });
@@ -58,16 +72,6 @@ function toggleDropdown(event) {
     event.stopPropagation();
     document.getElementById('dropdown-content').classList.toggle('show');
 }
-
-// Prevent dropdown from closing when clicking inside
-document.addEventListener('DOMContentLoaded', function() {
-    const dropdownContent = document.getElementById('dropdown-content');
-    if (dropdownContent) {
-        dropdownContent.addEventListener('click', function(event) {
-            event.stopPropagation();
-        });
-    }
-});
 
 // Only close dropdown if click is outside both button and menu
 window.addEventListener('click', function(event) {
@@ -716,22 +720,6 @@ function renderLicenses() {
 }
 
 // User Functions
-function handleAddUser(e) {
-    e.preventDefault();
-    
-    const user = {
-        id: generateId(),
-        name: document.getElementById('user-name').value,
-        email: document.getElementById('user-email').value,
-        department: document.getElementById('user-department').value
-    };
-    
-    users.push(user);
-    saveUsers();
-    renderUsers();
-    closeModal('user-modal');
-}
-
 function deleteUser(id) {
     if (confirm('Are you sure you want to delete this user?')) {
         // Remove assignments related to this user
@@ -1226,13 +1214,6 @@ function populateDeviceUserDropdown() {
 }
 
 // Handle Device Form Submission
-document.addEventListener('DOMContentLoaded', function() {
-    const deviceForm = document.getElementById('device-form');
-    if (deviceForm) {
-        deviceForm.addEventListener('submit', handleAddDevice);
-    }
-});
-
 function handleAddDevice(e) {
     e.preventDefault();
     
