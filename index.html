@@ -237,10 +237,29 @@
             <div class="bg-white rounded-xl shadow-lg p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">📥 Check In</h2>
+                    <div class="flex gap-3">
+                        <button onclick="showCheckInModal()" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                            ➕ Check In Device
+                        </button>
+                        <button onclick="exportCheckInsToExcel()" class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                            📊 Export to Excel
+                        </button>
+                    </div>
                 </div>
-                <div class="text-center py-12 text-gray-500">
-                    <div class="text-6xl mb-4">📥</div>
-                    <p class="text-lg">Check In functionality coming soon...</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gradient-to-r from-green-50 to-emerald-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Serial Number</th>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Date & Time</th>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Deliver Person</th>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">IT Receiver</th>
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="checkin-tbody" class="divide-y divide-gray-200">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -515,6 +534,58 @@
             </div>
             <p class="text-center text-gray-600 text-sm">Position the barcode/QR code within the camera view</p>
             <button onclick="closeScannerModal()" class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-all duration-300">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Check In Modal -->
+    <div id="checkin-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-8 transform transition-all">
+            <div class="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4">
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">📥 Check In Device</h2>
+                <button onclick="closeCheckInModal()" class="text-gray-400 hover:text-gray-600 text-3xl font-bold transition-colors">&times;</button>
+            </div>
+            <form id="checkin-form" onsubmit="handleCheckIn(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Serial Number *</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="checkin-serial" required class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none" placeholder="Enter or scan serial number">
+                        <button type="button" onclick="scanCheckInSerial()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg font-semibold shadow-lg transition-all duration-300">
+                            📷 Scan
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Date & Time *</label>
+                    <input type="datetime-local" id="checkin-datetime" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Deliver Person *</label>
+                    <input type="text" id="checkin-deliver" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none" placeholder="Name of person delivering">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">IT Receiver Person *</label>
+                    <input type="text" id="checkin-receiver" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none" placeholder="Name of IT person receiving">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                    ✅ Save Check In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Check In Scanner Modal -->
+    <div id="checkin-scanner-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Scan Serial Number</h2>
+                <button onclick="closeCheckInScannerModal()" class="text-gray-400 hover:text-gray-600 text-3xl font-bold transition-colors">&times;</button>
+            </div>
+            <div id="checkin-scanner-container" class="relative bg-black rounded-lg overflow-hidden mb-4" style="min-height: 300px;">
+                <video id="checkin-scanner-video" class="w-full" autoplay playsinline></video>
+                <canvas id="checkin-scanner-canvas" class="hidden"></canvas>
+            </div>
+            <p class="text-center text-gray-600 text-sm">Position the barcode/QR code within the camera view</p>
+            <button onclick="closeCheckInScannerModal()" class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-all duration-300">Cancel</button>
         </div>
     </div>
 

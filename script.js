@@ -1110,6 +1110,7 @@ function switchTab(tabName) {
         document.getElementById('checkin-content').classList.remove('hidden');
         document.getElementById('checkin-tab').classList.add('border-indigo-600', 'text-indigo-600');
         document.getElementById('checkin-tab').classList.remove('border-transparent', 'text-gray-500');
+        renderCheckIns();
     } else if (tabName === 'checkout') {
         document.getElementById('checkout-content').classList.remove('hidden');
         document.getElementById('checkout-tab').classList.add('border-indigo-600', 'text-indigo-600');
@@ -1388,5 +1389,176 @@ function detectCode() {
     } else {
         closeScannerModal();
     }
+}
+
+// ===== CHECK IN FUNCTIONALITY =====
+
+// Check-in data storage
+let checkIns = JSON.parse(localStorage.getItem('checkIns')) || [];
+let checkInScannerStream = null;
+
+// Show Check In modal
+function showCheckInModal() {
+    document.getElementById('checkin-modal').classList.remove('hidden');
+    
+    // Set current date and time
+    const now = new Date();
+    const dateTimeLocal = now.toISOString().slice(0, 16);
+    document.getElementById('checkin-datetime').value = dateTimeLocal;
+    
+    document.getElementById('checkin-form').reset();
+    document.getElementById('checkin-datetime').value = dateTimeLocal;
+}
+
+// Close Check In modal
+function closeCheckInModal() {
+    document.getElementById('checkin-modal').classList.add('hidden');
+}
+
+// Handle Check In form submission
+function handleCheckIn(e) {
+    e.preventDefault();
+    
+    const checkIn = {
+        id: generateId(),
+        serialNumber: document.getElementById('checkin-serial').value,
+        dateTime: document.getElementById('checkin-datetime').value,
+        deliverPerson: document.getElementById('checkin-deliver').value,
+        receiverPerson: document.getElementById('checkin-receiver').value,
+        timestamp: new Date().toISOString()
+    };
+    
+    checkIns.push(checkIn);
+    saveCheckIns();
+    renderCheckIns();
+    closeCheckInModal();
+    alert('Device checked in successfully!');
+}
+
+// Save check-ins to localStorage
+function saveCheckIns() {
+    localStorage.setItem('checkIns', JSON.stringify(checkIns));
+}
+
+// Render check-ins table
+function renderCheckIns() {
+    const tbody = document.getElementById('checkin-tbody');
+    
+    if (checkIns.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 text-lg">No check-ins recorded. Click "Check In Device" to get started.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = checkIns.map(checkIn => {
+        const dateTime = new Date(checkIn.dateTime);
+        const formattedDateTime = dateTime.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        return `
+            <tr class="hover:bg-green-50 transition-colors">
+                <td class="px-6 py-4"><code class="bg-green-100 px-2 py-1 rounded text-sm text-green-700 font-semibold">${checkIn.serialNumber}</code></td>
+                <td class="px-6 py-4 text-gray-800">${formattedDateTime}</td>
+                <td class="px-6 py-4 text-gray-800 font-medium">${checkIn.deliverPerson}</td>
+                <td class="px-6 py-4 text-gray-800 font-medium">${checkIn.receiverPerson}</td>
+                <td class="px-6 py-4">
+                    <button onclick="deleteCheckIn('${checkIn.id}')" class="text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Delete check-in
+function deleteCheckIn(id) {
+    if (confirm('Are you sure you want to delete this check-in record?')) {
+        checkIns = checkIns.filter(c => c.id !== id);
+        saveCheckIns();
+        renderCheckIns();
+    }
+}
+
+// Scanner for Check In
+function scanCheckInSerial() {
+    document.getElementById('checkin-scanner-modal').classList.remove('hidden');
+    startCheckInScanner();
+}
+
+function closeCheckInScannerModal() {
+    stopCheckInScanner();
+    document.getElementById('checkin-scanner-modal').classList.add('hidden');
+}
+
+function startCheckInScanner() {
+    const video = document.getElementById('checkin-scanner-video');
+    
+    navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            facingMode: 'environment'
+        } 
+    })
+    .then(stream => {
+        checkInScannerStream = stream;
+        video.srcObject = stream;
+        video.play();
+        
+        setTimeout(() => {
+            detectCheckInCode();
+        }, 1000);
+    })
+    .catch(err => {
+        console.error('Camera access error:', err);
+        alert('Could not access camera. Please enter the serial number manually or check camera permissions.');
+        closeCheckInScannerModal();
+    });
+}
+
+function stopCheckInScanner() {
+    if (checkInScannerStream) {
+        checkInScannerStream.getTracks().forEach(track => track.stop());
+        checkInScannerStream = null;
+    }
+}
+
+function detectCheckInCode() {
+    const code = prompt('Camera active. For this demo, please enter the serial number:');
+    
+    if (code) {
+        document.getElementById('checkin-serial').value = code;
+        closeCheckInScannerModal();
+        alert('Serial number captured: ' + code);
+    } else {
+        closeCheckInScannerModal();
+    }
+}
+
+// Export check-ins to Excel
+function exportCheckInsToExcel() {
+    if (checkIns.length === 0) {
+        alert('No check-in records to export.');
+        return;
+    }
+    
+    const data = checkIns.map(checkIn => {
+        const dateTime = new Date(checkIn.dateTime);
+        return {
+            'Serial Number': checkIn.serialNumber,
+            'Date': dateTime.toLocaleDateString('en-US'),
+            'Time': dateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            'Deliver Person': checkIn.deliverPerson,
+            'IT Receiver Person': checkIn.receiverPerson
+        };
+    });
+    
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Checked In');
+    
+    const fileName = `checked_in_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
 }
 
