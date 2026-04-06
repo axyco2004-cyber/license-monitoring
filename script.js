@@ -617,56 +617,6 @@ function showTab(tabName) {
     event.target.classList.add('active');
 }
 
-// Modal Functions
-function showAddLicenseModal() {
-    document.getElementById('license-modal').style.display = 'block';
-    document.getElementById('license-form').reset();
-}
-
-function showAddUserModal() {
-    document.getElementById('user-modal').style.display = 'block';
-    document.getElementById('user-form').reset();
-}
-
-function showAssignLicenseModal() {
-    populateAssignmentDropdowns();
-    document.getElementById('assign-modal').style.display = 'block';
-    document.getElementById('assign-form').reset();
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('access-date').value = today;
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-    }
-}
-
-// License Functions
-function handleAddLicense(e) {
-    e.preventDefault();
-    
-    const license = {
-        id: generateId(),
-        softwareName: document.getElementById('software-name').value,
-        licenseKey: document.getElementById('license-key').value,
-        totalSeats: parseInt(document.getElementById('total-seats').value),
-        usedSeats: 0,
-        expirationDate: document.getElementById('expiration-date').value
-    };
-    
-    licenses.push(license);
-    saveLicenses();
-    renderLicenses();
-    updateStats();
-    closeModal('license-modal');
-}
-
 function deleteLicense(id) {
     if (confirm('Are you sure you want to delete this license?')) {
         // Remove assignments related to this license
@@ -774,42 +724,6 @@ function renderUsers() {
             </tr>
         `;
     }).join('');
-}
-
-// Assignment Functions
-function populateAssignmentDropdowns() {
-    const userSelect = document.getElementById('assign-user');
-    const softwareSelect = document.getElementById('assign-software');
-    
-    userSelect.innerHTML = '<option value="">-- Select User --</option>' +
-        users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
-    
-    // Only show licenses with available seats
-    const availableLicenses = licenses.filter(l => l.usedSeats < l.totalSeats);
-    softwareSelect.innerHTML = '<option value="">-- Select Software --</option>' +
-        availableLicenses.map(l => 
-            `<option value="${l.id}">${l.softwareName} (${l.totalSeats - l.usedSeats} available)</option>`
-        ).join('');
-}
-
-function removeAssignment(id) {
-    if (confirm('Are you sure you want to remove this assignment?')) {
-        const assignment = assignments.find(a => a.id === id);
-        if (assignment) {
-            const license = licenses.find(l => l.id === assignment.licenseId);
-            if (license) {
-                license.usedSeats--;
-                saveLicenses();
-            }
-        }
-        
-        assignments = assignments.filter(a => a.id !== id);
-        saveAssignments();
-        renderAssignments();
-        renderLicenses();
-        renderDashboard();
-        updateStats();
-    }
 }
 
 // Edit assignment
