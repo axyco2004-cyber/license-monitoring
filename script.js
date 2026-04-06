@@ -1172,6 +1172,7 @@ function renderDevices() {
                 <td class="px-6 py-4 text-gray-600">${formatDate(device.registrationDate)}</td>
                 <td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-sm font-semibold ${statusClass}">${device.status}</span></td>
                 <td class="px-6 py-4">
+                    <button onclick="editDevice('${device.id}')" class="text-green-600 hover:text-green-800 font-semibold mr-3">Edit</button>
                     <button onclick="viewDeviceDetails('${device.id}')" class="text-blue-600 hover:text-blue-800 font-semibold mr-3">View</button>
                     <button onclick="deleteDevice('${device.id}')" class="text-red-600 hover:text-red-800 font-semibold">Delete</button>
                 </td>
@@ -1209,6 +1210,76 @@ ${device.notes ? 'Notes: ' + device.notes : ''}
     `;
     
     alert(details);
+}
+
+// Edit device
+function editDevice(id) {
+    const device = devices.find(d => d.id === id);
+    if (!device) return;
+    
+    // Populate the edit modal with device data
+    document.getElementById('edit-device-id').value = device.id;
+    document.getElementById('edit-device-serial').value = device.serialNumber;
+    document.getElementById('edit-device-name').value = device.name;
+    document.getElementById('edit-device-type').value = device.type;
+    document.getElementById('edit-device-status').value = device.status;
+    document.getElementById('edit-device-notes').value = device.notes || '';
+    
+    // Populate user dropdown
+    populateEditDeviceUserDropdown();
+    document.getElementById('edit-device-assigned-user').value = device.assignedUserId || '';
+    
+    // Show edit modal
+    document.getElementById('edit-device-modal').classList.remove('hidden');
+}
+
+// Populate user dropdown in edit device form
+function populateEditDeviceUserDropdown() {
+    const select = document.getElementById('edit-device-assigned-user');
+    select.innerHTML = '<option value="">-- Not Assigned --</option>';
+    
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.name} (${user.email})`;
+        select.appendChild(option);
+    });
+}
+
+// Save edited device
+function saveEditedDevice(e) {
+    e.preventDefault();
+    
+    const deviceId = document.getElementById('edit-device-id').value;
+    const device = devices.find(d => d.id === deviceId);
+    
+    if (!device) {
+        alert('Device not found!');
+        return;
+    }
+    
+    const userId = document.getElementById('edit-device-assigned-user').value;
+    const user = userId ? users.find(u => u.id === userId) : null;
+    
+    // Update device properties
+    device.serialNumber = document.getElementById('edit-device-serial').value;
+    device.name = document.getElementById('edit-device-name').value;
+    device.type = document.getElementById('edit-device-type').value;
+    device.assignedTo = user ? user.name : 'Unassigned';
+    device.assignedUserId = userId || null;
+    device.status = document.getElementById('edit-device-status').value;
+    device.notes = document.getElementById('edit-device-notes').value || '';
+    
+    saveDevices();
+    renderDevices();
+    updateDeviceStats();
+    closeEditDeviceModal();
+    alert('Device updated successfully!');
+}
+
+// Close edit device modal
+function closeEditDeviceModal() {
+    document.getElementById('edit-device-modal').classList.add('hidden');
 }
 
 // Delete device
